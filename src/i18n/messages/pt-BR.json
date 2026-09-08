@@ -1,0 +1,218 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "backToDashboard": "Voltar ao dashboard",
+    "viewResult": "Ver resultado",
+    "scanCreated": "Scan criado com sucesso!",
+    "tryAgain": "Tentar novamente",
+    "noData": "Sem dados"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "vulnerabilities": "Vulnerabilidades",
+    "login": "Entrar",
+    "register": "Registrar",
+    "logout": "Sair"
+  },
+  "landing": {
+    "heroTitle1": "Segurança que",
+    "heroTitle2": "ensina",
+    "heroDescription": "O QuackSec escaneia suas aplicações e APIs em busca de vulnerabilidades — e, em vez de apenas apontar o problema,",
+    "heroHighlight": "explica por que ele existe e como corrigir",
+    "viewDashboard": "Ver dashboard",
+    "viewVulnerabilities": "Ver vulnerabilidades",
+    "scanTitle": "Iniciar scan",
+    "scanHeading": "Escaneie sua aplicação agora",
+    "scanDescription": "Insira a URL da sua aplicação e o QuackSec irá analisar automaticamente vulnerabilidades, dependências e configurações de segurança.",
+    "scanPlaceholder": "https://exemplo.com",
+    "scanButton": "Escanear",
+    "modulesTitle": "Módulos do scanner",
+    "modulesHeading": "Quatro lentes. Uma visão completa.",
+    "modulesDescription": "Cada módulo cobre uma camada diferente do seu sistema — do frontend às dependências — com foco em didática.",
+    "ctaTitle1": "Comece a enxergar como um",
+    "ctaTitle2": "atacante",
+    "ctaDescription": "Conecte seu projeto, rode um scan e transforme cada alerta em uma lição. Sem mágica — só clareza.",
+    "openDashboard": "Abrir dashboard",
+    "scanError": "Erro ao criar scan. Verifique se o backend está rodando.",
+    "preview": {
+      "vulnCount": "14 vulnerabilidades",
+      "appsCount": "7 apps monitorados",
+      "lastScan": "Último scan há 2 min"
+    }
+  },
+  "modules": {
+    "webScanner": {
+      "title": "Scanner Web",
+      "description": "Analisa aplicações web em busca de XSS, SQLi, CSRF, misconfigurations e outras falhas do OWASP Top 10.",
+      "features": ["XSS & Injection", "Headers de segurança", "Controle de acesso"]
+    },
+    "apiScanner": {
+      "title": "Scanner de API",
+      "description": "Testa endpoints REST e GraphQL: autenticação, autorização, validação de input e exposição de dados.",
+      "features": ["BOLA / IDOR", "Mass assignment", "Rate limiting"]
+    },
+    "dependencyAnalysis": {
+      "title": "Análise de Dependências",
+      "description": "Mapeia bibliotecas e pacotes do seu projeto, cruzando com CVEs e bases de vulnerabilidades conhecidas.",
+      "features": ["CVE matching", "Licenças", "SBOM"]
+    },
+    "configAudit": {
+      "title": "Configuração",
+      "description": "Audita configurações de servidor, TLS/SSL, headers HTTP, barramentos e hardening do ambiente.",
+      "features": ["TLS score", "Security headers", "Hardening"]
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Visão geral da postura de segurança dos seus projetos",
+    "refresh": "Atualizar",
+    "newScan": "Novo scan",
+    "close": "Fechar",
+    "securityScore": "Score de Segurança",
+    "vulnerabilities": "Vulnerabilidades",
+    "scansPerformed": "Scans Realizados",
+    "severityBreakdown": "Vulnerabilidades por Severidade",
+    "recentScans": "Scans recentes",
+    "recentScansCount": "Últimos {count} scans realizados",
+    "noScans": "Nenhum scan realizado ainda. Crie seu primeiro scan!",
+    "bySeverity": "Por severidade",
+    "currentDistribution": "Distribuição atual",
+    "noSeverityData": "Sem dados de severidade",
+    "urgentRisks": "Riscos urgentes",
+    "viewAll": "Ver todos",
+    "criticalVulnerabilities": "{critical} vulnerabilidades críticas e {high} de alto risco detectadas.",
+    "scansTotal": "total",
+    "criticalCount": "{count} críticas",
+    "achados": "{count} achados",
+    "categories": " categorias",
+    "errorApi": "Erro ao conectar com a API. Verifique se o backend está rodando.",
+    "errorScan": "Erro ao criar scan. Verifique se o backend está rodando.",
+    "scansCount": "{count} scans realizados",
+    "vulnerabilitiesCount": "vulnerabilidades"
+  },
+  "login": {
+    "title": "Entre na sua conta para continuar",
+    "email": "Email",
+    "password": "Senha",
+    "emailPlaceholder": "seu@email.com",
+    "passwordPlaceholder": "••••••••",
+    "button": "Entrar",
+    "noAccount": "Não tem uma conta?",
+    "registerLink": "Registre-se",
+    "error": "Erro ao fazer login"
+  },
+  "register": {
+    "title": "Crie sua conta para começar",
+    "name": "Nome",
+    "email": "Email",
+    "password": "Senha",
+    "namePlaceholder": "Seu nome",
+    "emailPlaceholder": "seu@email.com",
+    "passwordPlaceholder": "Mínimo 6 caracteres",
+    "button": "Criar conta",
+    "hasAccount": "Já tem uma conta?",
+    "loginLink": "Entrar",
+    "error": "Erro ao registrar"
+  },
+  "scanDetail": {
+    "backToDashboard": "Voltar ao dashboard",
+    "vulnerabilitiesFound": "Vulnerabilidades encontradas",
+    "bySeverity": "Por severidade",
+    "byCategory": "Por categoria",
+    "byStatus": "Por status",
+    "findingsCount": "{filtered} de {total} achados",
+    "scanRunning": "Scan em execução, aguardando resultados...",
+    "noVulnerabilities": "Nenhuma vulnerabilidade encontrada.",
+    "scanNoResults": "Scan sem resultados.",
+    "dependenciesDetected": "Dependências detectadas",
+    "noFiltersMatch": "Nenhum achado com os filtros ativos.",
+    "clearFilters": "Limpar filtros",
+    "loading": "Carregando scan...",
+    "notFound": "Scan não encontrado",
+    "description": "Descrição",
+    "evidence": "Evidência",
+    "recommendation": "Recomendação",
+    "confidence": "Confiança",
+    "loadError": "Erro ao carregar scan"
+  },
+  "vulnerabilities": {
+    "title": "Vulnerabilidades",
+    "resultsFound": "{total} resultados encontrados",
+    "criticalCount": "{count} críticas",
+    "openCount": "{count} em aberto",
+    "searchPlaceholder": "Buscar vulnerabilidades...",
+    "severityLabel": "Severidade:",
+    "allSeverities": "Todas",
+    "statusLabel": "Status:",
+    "allStatuses": "Todos",
+    "noResults": "Nenhuma vulnerabilidade encontrada com esses filtros.",
+    "loading": "Carregando vulnerabilidades..."
+  },
+  "severity": {
+    "critical": "Crítico",
+    "high": "Alto",
+    "medium": "Médio",
+    "low": "Baixo",
+    "info": "Info"
+  },
+  "status": {
+    "pending": "Pendente",
+    "running": "Executando",
+    "completed": "Concluído",
+    "failed": "Falhou",
+    "cancelled": "Cancelado",
+    "open": "Em aberto",
+    "confirmed": "Confirmado",
+    "false_positive": "Falso positivo",
+    "fixed": "Corrigido"
+  },
+  "vulnerabilityGroup": {
+    "itemCount": "{count, plural, one {# item} other {# itens}}",
+    "informational": "Informativo",
+    "requiresAction": "Requer ação",
+    "recommendation": "Recomendação:",
+    "confidence": "Confiança",
+    "status": "status"
+  },
+  "summary": {
+    "securityScore": "Score de segurança",
+    "ofTen": "de 10",
+    "findingsRequireAction": "{count, plural, one {# achado requer ação} other {# achados requerem ação}}",
+    "informationalNeutral": "{count, plural, one {# informativo/neutro} other {# informativos/neutros}}",
+    "duration": "de duração",
+    "routesTested": "{count, plural, one {# rota testada} other {# rotas testadas}}"
+  },
+  "sourceFilter": {
+    "all": "Todos"
+  },
+  "sourceGroup": {
+    "routes": "Rotas",
+    "headers": "Headers HTTP",
+    "nikto": "Nikto",
+    "tls": "TLS/SSL",
+    "rate-limit": "Rate limit e métodos HTTP",
+    "ports": "Portas e serviços",
+    "dependencies": "Dependências",
+    "nuclei": "Nuclei",
+    "other": "Outros"
+  },
+  "category": {
+    "web": "Scanner web",
+    "api": "API",
+    "dependencies": "Dependências",
+    "config": "Configuração"
+  },
+  "footer": {
+    "description": "Segurança que ensina. Encontre vulnerabilidades, compreenda por que elas existem e aprenda a corrigir — tudo em uma plataforma só.",
+    "platform": "Plataforma",
+    "documentation": "Documentação",
+    "scannerGuide": "Guia de scanners",
+    "cweOwasp": "CWE & OWASP",
+    "gettingStarted": "Começando",
+    "copyright": "© 2026 QuackSec. Projeto educacional.",
+    "docsAria": "Documentação",
+    "siteAria": "Site",
+    "emailAria": "Email"
+  }
+}

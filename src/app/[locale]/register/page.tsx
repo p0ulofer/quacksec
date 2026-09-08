@@ -4,10 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
+  const t = useTranslations();
+  const locale = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,9 +25,9 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password);
-      window.location.href = "/dashboard";
+      window.location.href = `/${locale}/dashboard`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao registrar");
+      setError(err instanceof Error ? err.message : t("register.error"));
     } finally {
       setLoading(false);
     }
@@ -40,26 +43,26 @@ export default function RegisterPage() {
       >
         <div className="rounded-xl border border-border bg-card p-8 shadow-lg">
           <div className="mb-8 text-center">
-            <Link href="/" className="inline-flex items-center gap-2.5">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-2.5">
               <ShieldCheck className="h-8 w-8 text-primary" strokeWidth={1.8} />
               <span className="font-serif text-2xl tracking-tight">QuackSec</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
-              Crie sua conta para começar
+              {t("register.title")}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Nome
+                {t("register.name")}
               </label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome"
+                placeholder={t("register.namePlaceholder")}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                 required
               />
@@ -67,14 +70,14 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                Email
+                {t("register.email")}
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder={t("register.emailPlaceholder")}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                 required
               />
@@ -82,14 +85,14 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
-                Senha
+                {t("register.password")}
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder={t("register.passwordPlaceholder")}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                 minLength={6}
                 required
@@ -104,15 +107,15 @@ export default function RegisterPage() {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Criar conta"
+                t("register.button")
               )}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Já tem uma conta?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline">
-              Entrar
+            {t("register.hasAccount")}{" "}
+            <Link href={`/${locale}/login`} className="font-medium text-primary hover:underline">
+              {t("register.loginLink")}
             </Link>
           </p>
         </div>

@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useTranslations, useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/navbar";
@@ -29,14 +30,9 @@ import Link from "next/link";
 import { api, DashboardStats, Scan } from "@/lib/api";
 import { formatScanDuration } from "@/lib/utils";
 
-const statusLabel: Record<string, string> = {
-  pending: "Pendente",
-  running: "Executando",
-  completed: "Concluído",
-  failed: "Falhou",
-};
-
 export default function DashboardPage() {
+  const t = useTranslations();
+  const locale = useLocale();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +53,7 @@ export default function DashboardPage() {
         setStats(statsData);
         setRecentScans(scansData.slice(0, 5));
       } catch (err) {
-        setError("Erro ao conectar com a API. Verifique se o backend está rodando.");
+        setError(t("dashboard.errorApi"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -77,7 +73,7 @@ export default function DashboardPage() {
       setStats(statsData);
       setRecentScans(scansData.slice(0, 5));
     } catch (err) {
-      setError("Erro ao conectar com a API. Verifique se o backend está rodando.");
+      setError(t("dashboard.errorApi"));
       console.error(err);
     } finally {
       setLoading(false);
@@ -99,7 +95,7 @@ export default function DashboardPage() {
       setShowScanInput(false);
       fetchData();
     } catch {
-      setScanError("Erro ao criar scan. Verifique se o backend está rodando.");
+      setScanError(t("dashboard.errorScan"));
     } finally {
       setScanning(false);
     }
@@ -107,10 +103,10 @@ export default function DashboardPage() {
 
   const severityBreakdown = stats
     ? [
-        { name: "Crítico", value: stats.criticalCount, fill: "var(--chart-5)" },
-        { name: "Alto", value: stats.highCount, fill: "var(--chart-4)" },
-        { name: "Médio", value: stats.mediumCount, fill: "var(--chart-2)" },
-        { name: "Baixo", value: stats.lowCount, fill: "var(--chart-1)" },
+        { name: t("severity.critical"), value: stats.criticalCount, fill: "var(--chart-5)" },
+        { name: t("severity.high"), value: stats.highCount, fill: "var(--chart-4)" },
+        { name: t("severity.medium"), value: stats.mediumCount, fill: "var(--chart-2)" },
+        { name: t("severity.low"), value: stats.lowCount, fill: "var(--chart-1)" },
       ].filter((s) => s.value > 0)
     : [];
 
@@ -118,37 +114,37 @@ export default function DashboardPage() {
     ? [
         {
           icon: ShieldCheck,
-          label: "Score de Segurança",
+          label: t("dashboard.securityScore"),
           value: String(stats.securityScore),
           suffix: "/10",
-          trend: `${stats.totalScans} scans realizados`,
+          trend: t("dashboard.scansCount", { count: stats.totalScans }),
           trendPositive: stats.securityScore >= 7,
           iconColor: "text-primary bg-primary/10",
         },
         {
           icon: Bug,
-          label: "Vulnerabilidades",
+          label: t("dashboard.vulnerabilities"),
           value: String(stats.totalVulnerabilities),
           suffix: "",
-          trend: `${stats.criticalCount} críticas`,
+          trend: t("dashboard.criticalCount", { count: stats.criticalCount }),
           trendPositive: stats.criticalCount === 0,
           iconColor: "text-rose-500 bg-rose-500/10",
         },
         {
           icon: Globe,
-          label: "Scans Realizados",
+          label: t("dashboard.scansPerformed"),
           value: String(stats.totalScans),
           suffix: "",
-          trend: "total",
+          trend: t("dashboard.scansTotal"),
           trendPositive: true,
           iconColor: "text-emerald-500 bg-emerald-500/10",
         },
         {
           icon: Package,
-          label: "Vulnerabilidades por Severidade",
+          label: t("dashboard.severityBreakdown"),
           value: String(severityBreakdown.length),
-          suffix: " categorias",
-          trend: `${severityBreakdown.reduce((s, v) => s + v.value, 0)} achados`,
+          suffix: t("dashboard.categories"),
+          trend: t("dashboard.achados", { count: severityBreakdown.reduce((s, v) => s + v.value, 0) }),
           trendPositive: false,
           iconColor: "text-amber-500 bg-amber-500/10",
         },
@@ -161,9 +157,9 @@ export default function DashboardPage() {
       <div className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
           <div>
-            <h1 className="text-3xl tracking-tight">Dashboard</h1>
+            <h1 className="text-3xl tracking-tight">{t("dashboard.title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Visão geral da postura de segurança dos seus projetos
+              {t("dashboard.description")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -175,7 +171,7 @@ export default function DashboardPage() {
               disabled={loading}
             >
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              Atualizar
+              {t("dashboard.refresh")}
             </Button>
             <Button
               size="sm"
@@ -185,12 +181,12 @@ export default function DashboardPage() {
               {showScanInput ? (
                 <>
                   <X className="h-4 w-4" />
-                  Fechar
+                  {t("dashboard.close")}
                 </>
               ) : (
                 <>
                   <Zap className="h-4 w-4" />
-                  Novo scan
+                  {t("dashboard.newScan")}
                 </>
               )}
             </Button>
@@ -208,7 +204,7 @@ export default function DashboardPage() {
                   type="url"
                   value={scanUrl}
                   onChange={(e) => setScanUrl(e.target.value)}
-                  placeholder="https://exemplo.com"
+                  placeholder="https://example.com"
                   className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                   disabled={scanning}
                   required
@@ -220,7 +216,7 @@ export default function DashboardPage() {
                   ) : (
                     <>
                       <Search className="h-4 w-4" />
-                      Escanear
+                      {t("landing.scanButton")}
                     </>
                   )}
                 </Button>
@@ -233,12 +229,12 @@ export default function DashboardPage() {
               {scanResult && (
                 <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
                   <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                    Scan criado com sucesso!{" "}
+                    {t("common.scanCreated")}{" "}
                     <Link
-                      href={`/scans/${scanResult.id}`}
+                      href={`/${locale}/scans/${scanResult.id}`}
                       className="font-medium underline"
                     >
-                      Ver resultado
+                      {t("common.viewResult")}
                     </Link>
                   </p>
                 </div>
@@ -253,7 +249,7 @@ export default function DashboardPage() {
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="mt-4 text-sm text-muted-foreground">
-              Carregando dados...
+              {t("common.loading")}
             </p>
           </div>
         ) : error ? (
@@ -268,7 +264,7 @@ export default function DashboardPage() {
               className="mt-4"
               onClick={fetchData}
             >
-              Tentar novamente
+              {t("common.tryAgain")}
             </Button>
           </div>
         ) : (
@@ -288,22 +284,22 @@ export default function DashboardPage() {
                 <div className="rounded-lg border border-border bg-card p-6">
                   <div className="mb-6 flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl">Scans recentes</h2>
+                      <h2 className="text-xl">{t("dashboard.recentScans")}</h2>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Últimos {recentScans.length} scans realizados
+                        {t("dashboard.recentScansCount", { count: recentScans.length })}
                       </p>
                     </div>
                   </div>
                   {recentScans.length === 0 ? (
                     <div className="py-8 text-center text-sm text-muted-foreground">
-                      Nenhum scan realizado ainda. Crie seu primeiro scan!
+                      {t("dashboard.noScans")}
                     </div>
                   ) : (
                     <div className="space-y-3">
                       {recentScans.map((scan) => (
                         <Link
                           key={scan.id}
-                          href={`/scans/${scan.id}`}
+                          href={`/${locale}/scans/${scan.id}`}
                           className="flex items-center justify-between rounded-lg border border-border bg-background p-4 transition-colors hover:border-primary/30"
                         >
                           <div className="flex items-center gap-4">
@@ -323,10 +319,10 @@ export default function DashboardPage() {
                                 {scan.targetUrl}
                               </p>
                               <p className="mt-0.5 text-xs text-muted-foreground">
-                                {statusLabel[scan.status] || scan.status} ·{" "}
-                                {scan.totalVulnerabilities} vulnerabilidades
-                                {formatScanDuration(scan.startedAt, scan.completedAt) && (
-                                  <> · {formatScanDuration(scan.startedAt, scan.completedAt)}</>
+                                {t(`status.${scan.status}`)} ·{" "}
+                                {scan.totalVulnerabilities} {t("dashboard.vulnerabilitiesCount")}
+                                {formatScanDuration(scan.startedAt, scan.completedAt, locale) && (
+                                  <> · {formatScanDuration(scan.startedAt, scan.completedAt, locale)}</>
                                 )}
                               </p>
                             </div>
@@ -348,13 +344,13 @@ export default function DashboardPage() {
 
               <Reveal delay={0.15}>
                 <div className="rounded-lg border border-border bg-card p-6">
-                  <h2 className="text-xl">Por severidade</h2>
+                  <h2 className="text-xl">{t("dashboard.bySeverity")}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Distribuição atual
+                    {t("dashboard.currentDistribution")}
                   </p>
                   {severityBreakdown.length === 0 ? (
                     <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">
-                      Sem dados de severidade
+                      {t("dashboard.noSeverityData")}
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height={240}>
@@ -403,18 +399,20 @@ export default function DashboardPage() {
                   <div className="mb-4 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-xl">
                       <AlertTriangle className="h-5 w-5 text-amber-500" />
-                      Riscos urgentes
+                      {t("dashboard.urgentRisks")}
                     </h2>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href="/vulnerabilidades">
-                        Ver todos
+                      <Link href={`/${locale}/vulnerabilidades`}>
+                        {t("dashboard.viewAll")}
                         <ArrowUpRight className="h-4 w-4" />
                       </Link>
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {stats.criticalCount} vulnerabilidades críticas e{" "}
-                    {stats.highCount} de alto risco detectadas.
+                    {t("dashboard.criticalVulnerabilities", {
+                      critical: stats.criticalCount,
+                      high: stats.highCount,
+                    })}
                   </p>
                 </div>
               </Reveal>

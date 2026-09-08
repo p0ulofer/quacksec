@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/navbar";
 import {
   ChevronDown,
@@ -21,22 +21,24 @@ import { api, Vulnerability } from "@/lib/api";
 type Severity = "critical" | "high" | "medium" | "low" | "info";
 type VulnStatus = "open" | "confirmed" | "false_positive" | "fixed";
 
-const severityConfig: Record<Severity, { label: string; badge: "critical" | "danger" | "warning" | "success" | "secondary" }> = {
-  critical: { label: "Crítico", badge: "critical" },
-  high: { label: "Alto", badge: "danger" },
-  medium: { label: "Médio", badge: "warning" },
-  low: { label: "Baixo", badge: "success" },
-  info: { label: "Info", badge: "secondary" },
+const severityBadgeMap: Record<Severity, "critical" | "danger" | "warning" | "success" | "secondary"> = {
+  critical: "critical",
+  high: "danger",
+  medium: "warning",
+  low: "success",
+  info: "secondary",
 };
 
-const statusConfig: Record<VulnStatus, { label: string; badge: "critical" | "success" | "warning" | "secondary" }> = {
-  open: { label: "Em aberto", badge: "critical" },
-  confirmed: { label: "Confirmado", badge: "warning" },
-  false_positive: { label: "Falso positivo", badge: "secondary" },
-  fixed: { label: "Corrigido", badge: "success" },
+const statusBadgeMap: Record<VulnStatus, "critical" | "success" | "warning" | "secondary"> = {
+  open: "critical",
+  confirmed: "warning",
+  false_positive: "secondary",
+  fixed: "success",
 };
 
 export default function VulnerabilidadesPage() {
+  const t = useTranslations();
+  const locale = useLocale();
   const [vulns, setVulns] = useState<Vulnerability[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -80,20 +82,27 @@ export default function VulnerabilidadesPage() {
     return c;
   }, [vulns]);
 
+  const severities: Severity[] = ["critical", "high", "medium", "low", "info"];
+  const statuses: VulnStatus[] = ["open", "confirmed", "false_positive", "fixed"];
+
   return (
     <div className="min-h-screen">
       <Navbar />
       <div className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <h1 className="text-3xl tracking-tight">Vulnerabilidades</h1>
+          <h1 className="text-3xl tracking-tight">{t("vulnerabilities.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {loading ? (
-              "Carregando..."
+              t("common.loading")
             ) : (
               <>
-                {vulns.length} resultados encontrados ·{" "}
-                {vulns.filter((v) => v.severity === "critical").length} críticas ·{" "}
-                {vulns.filter((v) => v.status === "open").length} em aberto
+                {t("vulnerabilities.resultsFound", { total: vulns.length })} ·{" "}
+                {t("vulnerabilities.criticalCount", {
+                  count: vulns.filter((v) => v.severity === "critical").length,
+                })} ·{" "}
+                {t("vulnerabilities.openCount", {
+                  count: vulns.filter((v) => v.status === "open").length,
+                })}
               </>
             )}
           </p>
@@ -104,7 +113,7 @@ export default function VulnerabilidadesPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="mt-4 text-sm text-muted-foreground">Carregando vulnerabilidades...</p>
+            <p className="mt-4 text-sm text-muted-foreground">{t("vulnerabilities.loading")}</p>
           </div>
         ) : (
           <>
@@ -115,7 +124,7 @@ export default function VulnerabilidadesPage() {
                   <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Buscar vulnerabilidades..."
+                    placeholder={t("vulnerabilities.searchPlaceholder")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="h-11 w-full rounded-lg border border-border bg-card pl-10 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
@@ -125,40 +134,40 @@ export default function VulnerabilidadesPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <Filter className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">
-                    Severidade:
+                    {t("vulnerabilities.severityLabel")}
                   </span>
                   <button
                     onClick={() => setSeverityFilter("all")}
                     className={pillClass(severityFilter === "all")}
                   >
-                    Todas ({counts.all})
+                    {t("vulnerabilities.allSeverities")} ({counts.all})
                   </button>
-                  {(Object.keys(severityConfig) as Severity[]).map((sev) => (
+                  {severities.map((sev) => (
                     <button
                       key={sev}
                       onClick={() => setSeverityFilter(sev)}
                       className={pillClass(severityFilter === sev)}
                     >
-                      {severityConfig[sev].label} ({counts[sev] ?? 0})
+                      {t(`severity.${sev}`)} ({counts[sev] ?? 0})
                     </button>
                   ))}
 
                   <span className="ml-4 text-xs font-medium text-muted-foreground">
-                    Status:
+                    {t("vulnerabilities.statusLabel")}
                   </span>
                   <button
                     onClick={() => setStatusFilter("all")}
                     className={pillClass(statusFilter === "all")}
                   >
-                    Todos
+                    {t("vulnerabilities.allStatuses")}
                   </button>
-                  {(Object.keys(statusConfig) as VulnStatus[]).map((s) => (
+                  {statuses.map((s) => (
                     <button
                       key={s}
                       onClick={() => setStatusFilter(s)}
                       className={pillClass(statusFilter === s)}
                     >
-                      {statusConfig[s].label}
+                      {t(`status.${s}`)}
                     </button>
                   ))}
                 </div>
@@ -171,7 +180,7 @@ export default function VulnerabilidadesPage() {
                 <div className="rounded-lg border border-dashed border-border py-20 text-center">
                   <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Nenhuma vulnerabilidade encontrada com esses filtros.
+                    {t("vulnerabilities.noResults")}
                   </p>
                 </div>
               )}
@@ -199,11 +208,11 @@ export default function VulnerabilidadesPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="font-medium">{vuln.title}</span>
-                              <Badge variant={severityConfig[vuln.severity]?.badge || "secondary"}>
-                                {severityConfig[vuln.severity]?.label || vuln.severity}
+                              <Badge variant={severityBadgeMap[vuln.severity] || "secondary"}>
+                                {t(`severity.${vuln.severity}`)}
                               </Badge>
-                              <Badge variant={statusConfig[vuln.status]?.badge || "secondary"}>
-                                {statusConfig[vuln.status]?.label || vuln.status}
+                              <Badge variant={statusBadgeMap[vuln.status] || "secondary"}>
+                                {t(`status.${vuln.status}`)}
                               </Badge>
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
@@ -231,7 +240,7 @@ export default function VulnerabilidadesPage() {
                               <div>
                                 <h4 className="flex items-center gap-1.5 text-sm font-semibold">
                                   <AlertTriangle className="h-4 w-4 text-amber-500" />
-                                  Descrição
+                                  {t("scanDetail.description")}
                                 </h4>
                                 <p className="mt-2 text-sm text-muted-foreground">
                                   {vuln.description}
@@ -239,7 +248,7 @@ export default function VulnerabilidadesPage() {
 
                                 <h4 className="mt-5 flex items-center gap-1.5 text-sm font-semibold">
                                   <Globe className="h-4 w-4 text-primary" />
-                                  Evidência
+                                  {t("scanDetail.evidence")}
                                 </h4>
                                 <pre className="mt-2 overflow-x-auto rounded-md border border-border bg-background p-3 font-mono text-xs text-muted-foreground">
                                   {vuln.evidence}
@@ -249,7 +258,7 @@ export default function VulnerabilidadesPage() {
                               <div>
                                 <h4 className="flex items-center gap-1.5 text-sm font-semibold">
                                   <Lock className="h-4 w-4 text-emerald-500" />
-                                  Recomendação
+                                  {t("scanDetail.recommendation")}
                                 </h4>
                                 <p className="mt-2 text-sm text-muted-foreground">
                                   {vuln.recommendation}
@@ -264,9 +273,9 @@ export default function VulnerabilidadesPage() {
 
                                 <div className="mt-5 rounded-md border border-border bg-background p-3">
                                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>Confiança: {vuln.confidence}</span>
+                                    <span>{t("scanDetail.confidence")}: {vuln.confidence}</span>
                                     <span>
-                                      {new Date(vuln.createdAt).toLocaleDateString("pt-BR")}
+                                      {new Date(vuln.createdAt).toLocaleDateString(locale === "pt-BR" ? "pt-BR" : "en-US")}
                                     </span>
                                   </div>
                                 </div>

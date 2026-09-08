@@ -1,0 +1,218 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "backToDashboard": "Back to dashboard",
+    "viewResult": "View result",
+    "scanCreated": "Scan created successfully!",
+    "tryAgain": "Try again",
+    "noData": "No data"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "vulnerabilities": "Vulnerabilities",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "landing": {
+    "heroTitle1": "Security that",
+    "heroTitle2": "teaches",
+    "heroDescription": "QuackSec scans your applications and APIs for vulnerabilities — and instead of just pointing out the problem,",
+    "heroHighlight": "explains why it exists and how to fix it",
+    "viewDashboard": "View dashboard",
+    "viewVulnerabilities": "View vulnerabilities",
+    "scanTitle": "Start scan",
+    "scanHeading": "Scan your application now",
+    "scanDescription": "Enter your application URL and QuackSec will automatically analyze vulnerabilities, dependencies, and security configurations.",
+    "scanPlaceholder": "https://example.com",
+    "scanButton": "Scan",
+    "modulesTitle": "Scanner modules",
+    "modulesHeading": "Four lenses. One complete view.",
+    "modulesDescription": "Each module covers a different layer of your system — from frontend to dependencies — with a focus on teaching.",
+    "ctaTitle1": "Start seeing like an",
+    "ctaTitle2": "attacker",
+    "ctaDescription": "Connect your project, run a scan, and turn every alert into a lesson. No magic — just clarity.",
+    "openDashboard": "Open dashboard",
+    "scanError": "Error creating scan. Check if the backend is running.",
+    "preview": {
+      "vulnCount": "14 vulnerabilities",
+      "appsCount": "7 apps monitored",
+      "lastScan": "Last scan 2 min ago"
+    }
+  },
+  "modules": {
+    "webScanner": {
+      "title": "Web Scanner",
+      "description": "Analyzes web applications for XSS, SQLi, CSRF, misconfigurations and other OWASP Top 10 flaws.",
+      "features": ["XSS & Injection", "Security headers", "Access control"]
+    },
+    "apiScanner": {
+      "title": "API Scanner",
+      "description": "Tests REST and GraphQL endpoints: authentication, authorization, input validation, and data exposure.",
+      "features": ["BOLA / IDOR", "Mass assignment", "Rate limiting"]
+    },
+    "dependencyAnalysis": {
+      "title": "Dependency Analysis",
+      "description": "Maps your project's libraries and packages, cross-referencing with CVEs and known vulnerability databases.",
+      "features": ["CVE matching", "Licenses", "SBOM"]
+    },
+    "configAudit": {
+      "title": "Configuration",
+      "description": "Audits server configurations, TLS/SSL, HTTP headers, middleware, and environment hardening.",
+      "features": ["TLS score", "Security headers", "Hardening"]
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Overview of your projects' security posture",
+    "refresh": "Refresh",
+    "newScan": "New scan",
+    "close": "Close",
+    "securityScore": "Security Score",
+    "vulnerabilities": "Vulnerabilities",
+    "scansPerformed": "Scans Performed",
+    "severityBreakdown": "Vulnerabilities by Severity",
+    "recentScans": "Recent scans",
+    "recentScansCount": "Last {count} scans performed",
+    "noScans": "No scans performed yet. Create your first scan!",
+    "bySeverity": "By severity",
+    "currentDistribution": "Current distribution",
+    "noSeverityData": "No severity data",
+    "urgentRisks": "Urgent risks",
+    "viewAll": "View all",
+    "criticalVulnerabilities": "{critical} critical and {high} high-risk vulnerabilities detected.",
+    "scansTotal": "total",
+    "criticalCount": "{count} critical",
+    "achados": "{count} findings",
+    "categories": " categories",
+    "errorApi": "Error connecting to API. Check if the backend is running.",
+    "errorScan": "Error creating scan. Check if the backend is running.",
+    "scansCount": "{count} scans performed",
+    "vulnerabilitiesCount": "vulnerabilities"
+  },
+  "login": {
+    "title": "Sign in to your account to continue",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "you@email.com",
+    "passwordPlaceholder": "••••••••",
+    "button": "Login",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register",
+    "error": "Login failed"
+  },
+  "register": {
+    "title": "Create your account to get started",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@email.com",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "button": "Create account",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Login",
+    "error": "Registration failed"
+  },
+  "scanDetail": {
+    "backToDashboard": "Back to dashboard",
+    "vulnerabilitiesFound": "Vulnerabilities found",
+    "bySeverity": "By severity",
+    "byCategory": "By category",
+    "byStatus": "By status",
+    "findingsCount": "{filtered} of {total} findings",
+    "scanRunning": "Scan running, waiting for results...",
+    "noVulnerabilities": "No vulnerabilities found.",
+    "scanNoResults": "Scan has no results.",
+    "dependenciesDetected": "Dependencies detected",
+    "noFiltersMatch": "No findings match the active filters.",
+    "clearFilters": "Clear filters",
+    "loading": "Loading scan...",
+    "notFound": "Scan not found",
+    "description": "Description",
+    "evidence": "Evidence",
+    "recommendation": "Recommendation",
+    "confidence": "Confidence",
+    "loadError": "Error loading scan"
+  },
+  "vulnerabilities": {
+    "title": "Vulnerabilities",
+    "resultsFound": "{total} results found",
+    "criticalCount": "{count} critical",
+    "openCount": "{count} open",
+    "searchPlaceholder": "Search vulnerabilities...",
+    "severityLabel": "Severity:",
+    "allSeverities": "All",
+    "statusLabel": "Status:",
+    "allStatuses": "All",
+    "noResults": "No vulnerabilities found with these filters.",
+    "loading": "Loading vulnerabilities..."
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "info": "Info"
+  },
+  "status": {
+    "pending": "Pending",
+    "running": "Running",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "open": "Open",
+    "confirmed": "Confirmed",
+    "false_positive": "False positive",
+    "fixed": "Fixed"
+  },
+  "vulnerabilityGroup": {
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "informational": "Informational",
+    "requiresAction": "Requires action",
+    "recommendation": "Recommendation:",
+    "confidence": "Confidence",
+    "status": "status"
+  },
+  "summary": {
+    "securityScore": "Security score",
+    "ofTen": "of 10",
+    "findingsRequireAction": "{count, plural, one {# finding requires action} other {# findings require action}}",
+    "informationalNeutral": "{count, plural, one {# informational/neutral} other {# informational/neutral}}",
+    "duration": "duration",
+    "routesTested": "{count, plural, one {# route tested} other {# routes tested}}"
+  },
+  "sourceFilter": {
+    "all": "All"
+  },
+  "sourceGroup": {
+    "routes": "Routes",
+    "headers": "HTTP Headers",
+    "nikto": "Nikto",
+    "tls": "TLS/SSL",
+    "rate-limit": "Rate limit & HTTP methods",
+    "ports": "Ports & services",
+    "dependencies": "Dependencies",
+    "nuclei": "Nuclei",
+    "other": "Other"
+  },
+  "category": {
+    "web": "Web Scanner",
+    "api": "API",
+    "dependencies": "Dependencies",
+    "config": "Configuration"
+  },
+  "footer": {
+    "description": "Security that teaches. Find vulnerabilities, understand why they exist and learn to fix them — all in one platform.",
+    "platform": "Platform",
+    "documentation": "Documentation",
+    "scannerGuide": "Scanner guide",
+    "cweOwasp": "CWE & OWASP",
+    "gettingStarted": "Getting started",
+    "copyright": "© 2026 QuackSec. Educational project.",
+    "docsAria": "Documentation",
+    "siteAria": "Site",
+    "emailAria": "Email"
+  }
+}

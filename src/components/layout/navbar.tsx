@@ -4,28 +4,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/providers/theme-provider";
+import { useTranslations, useLocale } from "next-intl";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/auth-provider";
-
-const navLinks = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/vulnerabilidades", label: "Vulnerabilidades" },
-];
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const t = useTranslations();
+  const locale = useLocale();
+
+  const navLinks = [
+    { href: `/${locale}/dashboard`, label: t("nav.dashboard") },
+    { href: `/${locale}/vulnerabilidades`, label: t("nav.vulnerabilities") },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link
-          href="/"
+          href={`/${locale}`}
           className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
           <Image
@@ -53,6 +57,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <ThemeToggle />
           {isAuthenticated ? (
             <>
@@ -62,7 +67,7 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => { logout(); window.location.href = "/"; }}
+                onClick={() => { logout(); window.location.href = `/${locale}`; }}
                 className="hidden md:inline-flex"
               >
                 <LogOut className="h-4 w-4" />
@@ -70,11 +75,11 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className="hidden md:inline-flex">
-                <Button size="sm" variant="ghost">Entrar</Button>
+              <Link href={`/${locale}/login`} className="hidden md:inline-flex">
+                <Button size="sm" variant="ghost">{t("nav.login")}</Button>
               </Link>
-              <Link href="/register" className="hidden md:inline-flex">
-                <Button size="sm">Registrar</Button>
+              <Link href={`/${locale}/register`} className="hidden md:inline-flex">
+                <Button size="sm">{t("nav.register")}</Button>
               </Link>
             </>
           )}
@@ -117,19 +122,19 @@ export function Navbar() {
               className="mt-2 justify-start"
               onClick={() => {
                 logout();
-                window.location.href = "/";
+                window.location.href = `/${locale}`;
               }}
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Sair
+              {t("nav.logout")}
             </Button>
           ) : (
             <>
-              <Link href="/login" onClick={() => setMobileOpen(false)}>
-                <Button size="sm" variant="ghost" className="mt-2 w-full">Entrar</Button>
+              <Link href={`/${locale}/login`} onClick={() => setMobileOpen(false)}>
+                <Button size="sm" variant="ghost" className="mt-2 w-full">{t("nav.login")}</Button>
               </Link>
-              <Link href="/register" onClick={() => setMobileOpen(false)}>
-                <Button size="sm" className="mt-1 w-full">Registrar</Button>
+              <Link href={`/${locale}/register`} onClick={() => setMobileOpen(false)}>
+                <Button size="sm" className="mt-1 w-full">{t("nav.register")}</Button>
               </Link>
             </>
           )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { SourceGroupKey } from "@/lib/vulnerability-config";
 import { SOURCE_GROUPS } from "@/lib/vulnerability-config";
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function SourceFilter({ active, onToggle, counts }: Props) {
+  const t = useTranslations();
   const hasActive = active.size > 0;
 
   return (
@@ -28,7 +30,7 @@ export function SourceFilter({ active, onToggle, counts }: Props) {
             : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground",
         )}
       >
-        Todos
+        {t("sourceFilter.all")}
       </button>
       {SOURCE_GROUPS.map((group) => {
         const isActive = active.has(group.key);
@@ -46,7 +48,7 @@ export function SourceFilter({ active, onToggle, counts }: Props) {
                   : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground",
             )}
           >
-            {group.label}
+            {t(`sourceGroup.${group.key}`)}
             <span className={cn("ml-1.5", isActive ? "opacity-80" : "opacity-50")}>
               {count}
             </span>

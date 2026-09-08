@@ -22,23 +22,23 @@ export interface Vulnerability {
 
 export const severityConfig: Record<
   Severity,
-  { label: string; badge: "critical" | "danger" | "warning" | "success" | "secondary" }
+  { badge: "critical" | "danger" | "warning" | "success" | "secondary" }
 > = {
-  critical: { label: "Crítico", badge: "critical" },
-  high: { label: "Alto", badge: "danger" },
-  medium: { label: "Médio", badge: "warning" },
-  low: { label: "Baixo", badge: "success" },
-  info: { label: "Info", badge: "secondary" },
+  critical: { badge: "critical" },
+  high: { badge: "danger" },
+  medium: { badge: "warning" },
+  low: { badge: "success" },
+  info: { badge: "secondary" },
 };
 
 export const statusConfig: Record<
   VulnerabilityStatus,
-  { label: string; badge: "critical" | "success" | "warning" | "secondary" }
+  { badge: "critical" | "success" | "warning" | "secondary" }
 > = {
-  open: { label: "Em aberto", badge: "critical" },
-  fixed: { label: "Corrigido", badge: "success" },
-  "in-review": { label: "Em revisão", badge: "warning" },
-  ignored: { label: "Ignorado", badge: "secondary" },
+  open: { badge: "critical" },
+  fixed: { badge: "success" },
+  "in-review": { badge: "warning" },
+  ignored: { badge: "secondary" },
 };
 
 export const vulnerabilities: Vulnerability[] = [
