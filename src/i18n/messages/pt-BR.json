@@ -6,11 +6,13 @@
     "viewResult": "Ver resultado",
     "scanCreated": "Scan criado com sucesso!",
     "tryAgain": "Tentar novamente",
-    "noData": "Sem dados"
+    "noData": "Sem dados",
+    "cancel": "Cancelar"
   },
   "nav": {
     "dashboard": "Dashboard",
     "vulnerabilities": "Vulnerabilidades",
+    "remediationPlans": "Planos de Correção",
     "login": "Entrar",
     "register": "Registrar",
     "logout": "Sair"
@@ -146,8 +148,16 @@
     "allSeverities": "Todas",
     "statusLabel": "Status:",
     "allStatuses": "Todos",
+    "moduleLabel": "Módulo:",
+    "allModules": "Todos",
+    "allUrls": "Todas as URLs",
+    "urgentMode": "Mais urgentes",
     "noResults": "Nenhuma vulnerabilidade encontrada com esses filtros.",
-    "loading": "Carregando vulnerabilidades..."
+    "loading": "Carregando vulnerabilidades...",
+    "selectAll": "Selecionar todas",
+    "selectedCount": "{count} selecionadas",
+    "clearSelection": "Limpar seleção",
+    "createPlan": "Criar plano de correção"
   },
   "severity": {
     "critical": "Crítico",
@@ -214,5 +224,51 @@
     "docsAria": "Documentação",
     "siteAria": "Site",
     "emailAria": "Email"
+  },
+  "scanModule": {
+    "api_scanner": "Scanner de API",
+    "dependency_analyzer": "Análise de Dependências",
+    "config_analyzer": "Análise de Configuração"
+  },
+  "remediationPlanStatus": {
+    "open": "Em aberto",
+    "in_progress": "Em andamento",
+    "done": "Concluído"
+  },
+  "planVulnStatus": {
+    "pending": "Pendente",
+    "resolved": "Corrigido",
+    "false_positive": "Falso positivo",
+    "risk_accepted": "Risco aceito"
+  },
+  "remediationPlans": {
+    "title": "Planos de Correção",
+    "plansCount": "{count} planos",
+    "noPlans": "Nenhum plano de correção ainda. Selecione vulnerabilidades para criar um plano.",
+    "goToVulnerabilities": "Ver vulnerabilidades",
+    "createTitle": "Criar plano de correção",
+    "createDescription": "Criar um plano para corrigir {count} vulnerabilidade(s) selecionada(s).",
+    "nameLabel": "Nome do plano",
+    "namePlaceholder": "Ex: Corrigir headers de segurança",
+    "descriptionLabel": "Descrição (opcional)",
+    "descriptionPlaceholder": "Descreva o objetivo deste plano...",
+    "selectedVulnerabilities": "Vulnerabilidades selecionadas",
+    "vulnerabilities": "vulnerabilidades",
+    "createButton": "Criar plano",
+    "deleteTitle": "Excluir plano",
+    "deleteDescription": "Tem certeza que deseja excluir este plano? Esta ação não pode ser desfeita.",
+    "deleteButton": "Excluir",
+    "backToList": "Voltar para planos",
+    "markAsDone": "Marcar como concluído",
+    "noVulnerabilities": "Nenhuma vulnerabilidade neste plano.",
+    "createdAt": "Criado em",
+    "dueDate": "Prazo",
+    "resolvedAt": "Resolvido em",
+    "resolve": "Resolver",
+    "resolveTitle": "Resolver vulnerabilidade",
+    "resolutionType": "Tipo de resolução",
+    "resolutionNote": "Nota (opcional)",
+    "resolutionNotePlaceholder": "Descreva como foi resolvida...",
+    "confirmResolve": "Confirmar"
   }
 }

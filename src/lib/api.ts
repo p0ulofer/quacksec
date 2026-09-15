@@ -49,6 +49,39 @@ export interface Dependency {
   createdAt: string;
 }
 
+export interface ScannedUrl {
+  applicationId: string | null;
+  url: string;
+  name: string | null;
+  scanCount: number;
+}
+
+export interface RemediationPlanVuln {
+  id: string;
+  vulnerabilityId: string;
+  status: "pending" | "resolved" | "false_positive" | "risk_accepted";
+  resolutionNote: string | null;
+  resolvedAt: string | null;
+  createdAt: string;
+  vulnerability: Vulnerability;
+}
+
+export interface RemediationPlan {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "open" | "in_progress" | "done";
+  createdById: string;
+  assignedToId: string | null;
+  dueDate: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  vulnerabilities: RemediationPlanVuln[];
+  createdBy?: { id: string; name: string; email: string };
+  assignedTo?: { id: string; name: string; email: string } | null;
+}
+
 export interface DashboardStats {
   totalScans: number;
   totalVulnerabilities: number;
@@ -129,11 +162,17 @@ class ApiClient {
     severity?: string;
     status?: string;
     search?: string;
+    applicationId?: string;
+    module?: string;
+    urgent?: boolean;
   }): Promise<Vulnerability[]> {
     const params = new URLSearchParams();
     if (filters?.severity) params.append("severity", filters.severity);
     if (filters?.status) params.append("status", filters.status);
     if (filters?.search) params.append("search", filters.search);
+    if (filters?.applicationId) params.append("applicationId", filters.applicationId);
+    if (filters?.module) params.append("module", filters.module);
+    if (filters?.urgent) params.append("urgent", "true");
 
     const query = params.toString();
     return this.request<Vulnerability[]>(`/vulnerabilities${query ? `?${query}` : ""}`);
@@ -152,6 +191,61 @@ class ApiClient {
 
   async getDependencies(scanId: string): Promise<Dependency[]> {
     return this.request<Dependency[]>(`/dependencies/scan/${scanId}`);
+  }
+
+  async getScannedUrls(): Promise<ScannedUrl[]> {
+    return this.request<ScannedUrl[]>("/applications/scanned-urls");
+  }
+
+  async createRemediationPlan(data: {
+    title: string;
+    description?: string;
+    vulnerabilityIds: string[];
+    assignedToId?: string;
+    dueDate?: string;
+  }): Promise<RemediationPlan> {
+    return this.request<RemediationPlan>("/remediation-plans", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getRemediationPlans(): Promise<RemediationPlan[]> {
+    return this.request<RemediationPlan[]>("/remediation-plans");
+  }
+
+  async getRemediationPlan(id: string): Promise<RemediationPlan> {
+    return this.request<RemediationPlan>(`/remediation-plans/${id}`);
+  }
+
+  async updateRemediationPlan(
+    id: string,
+    data: { title?: string; description?: string; status?: string; dueDate?: string }
+  ): Promise<RemediationPlan> {
+    return this.request<RemediationPlan>(`/remediation-plans/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePlanVulnerabilityStatus(
+    planId: string,
+    vulnId: string,
+    data: { status: string; resolutionNote?: string }
+  ): Promise<RemediationPlan> {
+    return this.request<RemediationPlan>(
+      `/remediation-plans/${planId}/vulnerabilities/${vulnId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async deleteRemediationPlan(id: string): Promise<void> {
+    await this.request<{ message: string }>(`/remediation-plans/${id}`, {
+      method: "DELETE",
+    });
   }
 }
 
