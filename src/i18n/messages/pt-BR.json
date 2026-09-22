@@ -228,7 +228,8 @@
   "scanModule": {
     "api_scanner": "Scanner de API",
     "dependency_analyzer": "Análise de Dependências",
-    "config_analyzer": "Análise de Configuração"
+    "config_analyzer": "Análise de Configuração",
+    "nuclei": "Nuclei"
   },
   "remediationPlanStatus": {
     "open": "Em aberto",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useTranslations, useLocale } from "next-intl";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { UserProfileDialog } from "@/components/layout/user-profile-dialog";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -62,9 +63,11 @@ export function Navbar() {
           <ThemeToggle />
           {isAuthenticated ? (
             <>
-              <span className="hidden text-sm text-muted-foreground md:inline">
-                {user?.name}
-              </span>
+              <UserProfileDialog>
+                <button className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:inline">
+                  {user?.name}
+                </button>
+              </UserProfileDialog>
               <Button
                 variant="ghost"
                 size="sm"
@@ -101,7 +104,7 @@ export function Navbar() {
       <div
         className={cn(
           "overflow-hidden border-t border-border/60 bg-background transition-all duration-300 md:hidden",
-          mobileOpen ? "max-h-64" : "max-h-0"
+          mobileOpen ? "max-h-80" : "max-h-0"
         )}
       >
         <nav className="flex flex-col gap-1 px-6 py-4">
@@ -117,18 +120,31 @@ export function Navbar() {
               </Link>
             ))}
           {isAuthenticated ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="mt-2 justify-start"
-              onClick={() => {
-                logout();
-                window.location.href = `/${locale}`;
-              }}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              {t("nav.logout")}
-            </Button>
+            <>
+              <UserProfileDialog>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="mt-2 justify-start"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Perfil
+                </Button>
+              </UserProfileDialog>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-2 justify-start"
+                onClick={() => {
+                  logout();
+                  window.location.href = `/${locale}`;
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {t("nav.logout")}
+              </Button>
+            </>
           ) : (
             <>
               <Link href={`/${locale}/login`} onClick={() => setMobileOpen(false)}>
