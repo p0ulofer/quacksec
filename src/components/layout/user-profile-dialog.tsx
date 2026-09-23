@@ -51,31 +51,11 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-background/80 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Lock className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-muted-foreground">Senha</p>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium font-mono tracking-wider">
-                  {showPassword ? "••••••••" : "••••••••"}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
+          
           </div>
-        </div>
+        
+       
+        
       </DialogContent>
     </Dialog>
   );

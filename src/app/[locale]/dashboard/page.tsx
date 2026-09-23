@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ResponsiveContainer,
   PieChart,
@@ -25,6 +26,7 @@ import {
   RefreshCw,
   Search,
   X,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { api, DashboardStats, Scan } from "@/lib/api";
@@ -33,6 +35,7 @@ import { formatScanDuration } from "@/lib/utils";
 export default function DashboardPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +45,12 @@ export default function DashboardPage() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{ id: string; status: string } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+
+  // --- Delete account state ---
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -98,6 +107,22 @@ export default function DashboardPage() {
       setScanError(t("dashboard.errorScan"));
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await api.deleteAccount(deletePassword);
+      document.cookie = "access_token=; path=/; max-age=0";
+      document.cookie = "refresh_token=; path=/; max-age=0";
+      router.push(`/${locale}/login`);
+    } catch (err: any) {
+      setDeleteError(err?.message || "Não foi possível excluir a conta.");
+      setDeleting(false);
     }
   };
 
@@ -417,9 +442,78 @@ export default function DashboardPage() {
                 </div>
               </Reveal>
             )}
+
+            {/* Danger zone */}
+            <Reveal className="mt-10">
+              <div className="rounded-lg border border-red-200 bg-red-50/50 p-6 dark:border-red-900 dark:bg-red-950/20">
+                <h2 className="flex items-center gap-2 text-lg font-medium text-red-700 dark:text-red-400">
+                  <Trash2 className="h-5 w-5" />
+                  Zona de perigo
+                </h2>
+                <p className="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
+                  Excluir sua conta é uma ação permanente. Todos os seus dados, scans e aplicações cadastradas serão perdidos.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4 border-red-300 text-red-600 hover:bg-red-100 dark:border-red-800 dark:text-red-400"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Excluir minha conta
+                </Button>
+              </div>
+            </Reveal>
           </>
         )}
       </div>
+
+      {/* Delete account modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6">
+            <h3 className="text-lg font-medium">Confirmar exclusão</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Digite sua senha atual para confirmar. Essa ação não pode ser desfeita.
+            </p>
+            <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3">
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Sua senha"
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400/40"
+                required
+                autoFocus
+              />
+              {deleteError && (
+                <p className="text-sm text-red-500">{deleteError}</p>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeletePassword("");
+                    setDeleteError(null);
+                  }}
+                  disabled={deleting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deleting || !deletePassword}
+                >
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Excluir"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

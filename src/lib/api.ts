@@ -197,6 +197,13 @@ class ApiClient {
     return this.request<ScannedUrl[]>("/applications/scanned-urls");
   }
 
+  async deleteAccount(password: string): Promise<void> {
+    await this.request<{ message: string }>("/users/me", {
+      method: "DELETE",
+      body: JSON.stringify({ password }),
+    });
+  }
+
   async createRemediationPlan(data: {
     title: string;
     description?: string;
@@ -247,6 +254,8 @@ class ApiClient {
       method: "DELETE",
     });
   }
+
+  
 }
 
 export const api = new ApiClient(API_URL);
