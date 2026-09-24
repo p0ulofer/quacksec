@@ -10,13 +10,13 @@
     "cancel": "Cancelar"
   },
   "nav": {
-    "dashboard": "Dashboard",
-    "vulnerabilities": "Vulnerabilidades",
-    "remediationPlans": "Planos de Correção",
-    "login": "Entrar",
-    "register": "Registrar",
-    "logout": "Sair"
-  },
+  "dashboard": "Painel",
+  "vulnerabilities": "Vulnerabilidades",
+  "remediationPlans": "Planos de Correção",
+  "login": "Entrar",
+  "register": "Registrar",
+  "logout": "Sair"
+},
   "landing": {
     "heroTitle1": "Segurança que",
     "heroTitle2": "ensina",
@@ -47,26 +47,26 @@
     "webScanner": {
       "title": "Scanner Web",
       "description": "Analisa aplicações web em busca de XSS, SQLi, CSRF, misconfigurations e outras falhas do OWASP Top 10.",
-      "features": ["XSS & Injection", "Headers de segurança", "Controle de acesso"]
+      "features": ["XSS e Injeção", "Headers de segurança", "Controle de acesso"]
     },
     "apiScanner": {
       "title": "Scanner de API",
       "description": "Testa endpoints REST e GraphQL: autenticação, autorização, validação de input e exposição de dados.",
-      "features": ["BOLA / IDOR", "Mass assignment", "Rate limiting"]
+      "features": ["BOLA / IDOR", "Atribuição em massa", "Limitação de taxa"]
     },
     "dependencyAnalysis": {
       "title": "Análise de Dependências",
       "description": "Mapeia bibliotecas e pacotes do seu projeto, cruzando com CVEs e bases de vulnerabilidades conhecidas.",
-      "features": ["CVE matching", "Licenças", "SBOM"]
+      "features": ["Correspondência de CVEs", "Licenças", "SBOM"]
     },
     "configAudit": {
       "title": "Configuração",
       "description": "Audita configurações de servidor, TLS/SSL, headers HTTP, barramentos e hardening do ambiente.",
-      "features": ["TLS score", "Security headers", "Hardening"]
+      "features": ["Pontuação TLS", "Headers de segurança", "Fortalecimento"]
     }
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Painel",
     "description": "Visão geral da postura de segurança dos seus projetos",
     "refresh": "Atualizar",
     "newScan": "Novo scan",
@@ -201,7 +201,7 @@
     "headers": "Headers HTTP",
     "nikto": "Nikto",
     "tls": "TLS/SSL",
-    "rate-limit": "Rate limit e métodos HTTP",
+    "rate-limit": "Limite de taxa e métodos HTTP",
     "ports": "Portas e serviços",
     "dependencies": "Dependências",
     "nuclei": "Nuclei",
