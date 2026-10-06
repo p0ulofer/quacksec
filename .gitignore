@@ -11,11 +11,8 @@ build/
 next-env.d.ts
 
 # env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*
+!.env.example
 
 # debug / logs
 *.log

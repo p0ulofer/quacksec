@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { getApiUrl, refreshSession } from "@/lib/api";
 
 interface User {
   id: string;
@@ -19,8 +20,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
 function getTokenFromCookie(): string | undefined {
   if (typeof document === "undefined") return undefined;
   const match = document.cookie.match(/access_token=([^;]+)/);
@@ -32,16 +31,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
-    const token = getTokenFromCookie();
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
     try {
-      const response = await fetch(`${API_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      });
+      let token = getTokenFromCookie();
+      if (!token) {
+        token = (await refreshSession()) ? getTokenFromCookie() : undefined;
+      }
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const fetchMe = () =>
+        fetch(`${getApiUrl()}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        });
+
+      let response = await fetchMe();
+      if (response.status === 401 && (await refreshSession())) {
+        token = getTokenFromCookie();
+        response = await fetchMe();
+      }
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -62,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [checkAuth]);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${getApiUrl()}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -81,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${getApiUrl()}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -101,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch(`${API_URL}/auth/logout`, {
+      await fetch(`${getApiUrl()}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

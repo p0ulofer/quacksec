@@ -1,4 +1,51 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+export function getApiUrl(): string {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url) {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL não definida — configure-a nas variáveis de ambiente (Vercel)."
+    );
+  }
+  return url;
+}
+
+function getCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(new RegExp(`(?:^|; *)${name}=([^;]*)`));
+  return match?.[1];
+}
+
+function setTokenCookies(accessToken: string, refreshToken: string) {
+  document.cookie = `access_token=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+  document.cookie = `refresh_token=${refreshToken}; path=/; max-age=604800; SameSite=Lax`;
+}
+
+function clearTokenCookies() {
+  document.cookie = "access_token=; path=/; max-age=0";
+  document.cookie = "refresh_token=; path=/; max-age=0";
+}
+
+export async function refreshSession(): Promise<boolean> {
+  const refreshToken = getCookie("refresh_token");
+  if (!refreshToken) return false;
+
+  try {
+    const response = await fetch(`${getApiUrl()}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      credentials: "include",
+    });
+    if (!response.ok) return false;
+
+    const data = await response.json();
+    if (!data.accessToken || !data.refreshToken) return false;
+
+    setTokenCookies(data.accessToken, data.refreshToken);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export interface Scan {
   id: string;
@@ -93,40 +140,37 @@ export interface DashboardStats {
 }
 
 function getToken(): string | undefined {
-  if (typeof document === "undefined") return undefined;
-  const match = document.cookie.match(/access_token=([^;]+)/);
-  return match?.[1];
+  return getCookie("access_token");
 }
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
-
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const token = getToken();
+    const url = `${getApiUrl()}${endpoint}`;
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options?.headers as Record<string, string>),
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    let token = getToken();
+    if (!token) {
+      token = (await refreshSession()) ? getToken() : undefined;
     }
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
+    const send = (accessToken?: string): Promise<Response> => {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(options?.headers as Record<string, string>),
+      };
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+      return fetch(url, { ...options, headers, credentials: "include" });
+    };
+
+    let response = await send(token);
+
+    if (response.status === 401 && (await refreshSession())) {
+      response = await send(getToken());
+    }
 
     if (response.status === 401) {
-      document.cookie = "access_token=; path=/; max-age=0";
-      document.cookie = "refresh_token=; path=/; max-age=0";
+      clearTokenCookies();
       window.location.href = "/login";
       throw new Error("Sessão expirada");
     }
@@ -258,4 +302,4 @@ class ApiClient {
   
 }
 
-export const api = new ApiClient(API_URL);
+export const api = new ApiClient();

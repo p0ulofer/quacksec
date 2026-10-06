@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Reveal } from "@/components/ui/reveal";
@@ -68,6 +68,20 @@ const scanModules: { key: ScanModuleKey; labelKey: string }[] = [
 ];
 
 export default function VulnerabilidadesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      }
+    >
+      <VulnerabilidadesContent />
+    </Suspense>
+  );
+}
+
+function VulnerabilidadesContent() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
