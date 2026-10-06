@@ -36,28 +36,44 @@
     "ctaTitle2": "attacker",
     "ctaDescription": "Connect your project, run a scan, and turn every alert into a lesson. No magic — just clarity.",
     "openDashboard": "Open dashboard",
-    "scanError": "Error creating scan. Check if the backend is running."
+    "scanError": "Error creating scan. The server may be busy or waking up — please try again in a moment."
   },
   "modules": {
     "webScanner": {
       "title": "Web Scanner",
       "description": "Analyzes web applications for XSS, SQLi, CSRF, misconfigurations and other OWASP Top 10 flaws.",
-      "features": ["XSS & Injection", "Security headers", "Access control"]
+      "features": [
+        "XSS & Injection",
+        "Security headers",
+        "Access control"
+      ]
     },
     "apiScanner": {
       "title": "API Scanner",
       "description": "Tests REST and GraphQL endpoints: authentication, authorization, input validation, and data exposure.",
-      "features": ["BOLA / IDOR", "Mass assignment", "Rate limiting"]
+      "features": [
+        "BOLA / IDOR",
+        "Mass assignment",
+        "Rate limiting"
+      ]
     },
     "dependencyAnalysis": {
       "title": "Dependency Analysis",
       "description": "Maps your project's libraries and packages, cross-referencing with CVEs and known vulnerability databases.",
-      "features": ["CVE matching", "Licenses", "SBOM"]
+      "features": [
+        "CVE matching",
+        "Licenses",
+        "SBOM"
+      ]
     },
     "configAudit": {
       "title": "Configuration",
       "description": "Audits server configurations, TLS/SSL, HTTP headers, middleware, and environment hardening.",
-      "features": ["TLS score", "Security headers", "Hardening"]
+      "features": [
+        "TLS score",
+        "Security headers",
+        "Hardening"
+      ]
     }
   },
   "dashboard": {
@@ -83,8 +99,8 @@
     "criticalCount": "{count} critical",
     "achados": "{count} findings",
     "categories": " categories",
-    "errorApi": "Error connecting to API. Check if the backend is running.",
-    "errorScan": "Error creating scan. Check if the backend is running.",
+    "errorApi": "Couldn't load the data right now. The server may be busy or waking up — please try again in a moment.",
+    "errorScan": "Error creating scan. The server may be busy or waking up — please try again in a moment.",
     "scansCount": "{count} scans performed",
     "vulnerabilitiesCount": "vulnerabilities"
   },
@@ -131,7 +147,10 @@
     "evidence": "Evidence",
     "recommendation": "Recommendation",
     "confidence": "Confidence",
-    "loadError": "Error loading scan"
+    "loadError": "Couldn't load this scan right now. The server may be busy or waking up — please try again.",
+    "scanCancelled": "Scan cancelled — partial results were discarded and nothing was saved.",
+    "scanCancelling": "Cancelling the scan... no results will be saved.",
+    "scanQueued": "Scan queued — results will appear here once it starts running."
   },
   "vulnerabilities": {
     "title": "Vulnerabilities",
@@ -266,5 +285,26 @@
     "resolutionNote": "Note (optional)",
     "resolutionNotePlaceholder": "Describe how it was resolved...",
     "confirmResolve": "Confirm"
+  },
+  "scanStatus": {
+    "pending": "Queued",
+    "running": "Running",
+    "cancelling": "Cancelling...",
+    "cancelled": "Cancelled",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "scans": {
+    "cancelAction": "Cancel scan",
+    "cancelTitle": "Cancel this scan?",
+    "cancelDescription": "The scan will stop now. Partial results will not be saved. This action cannot be undone.",
+    "cancelConfirm": "Yes, cancel",
+    "cancelPending": "Scan cancelled.",
+    "cancelRequested": "Cancellation requested — the scan will stop in a moment.",
+    "cancelConflict": "This scan has already finished and can't be cancelled. Refreshing its data.",
+    "cancelForbidden": "You don't have permission to cancel this scan.",
+    "cancelNotFound": "Scan not found.",
+    "queuedNotice": "Waiting in queue — other scans are being processed first.",
+    "serverBusy": "The server may be busy or waking up — please try again in a moment."
   }
 }

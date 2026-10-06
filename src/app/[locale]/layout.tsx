@@ -4,6 +4,7 @@ import "../globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { locales } from "@/i18n/config";
@@ -73,6 +74,7 @@ export default async function LocaleLayout({
             <AuthProvider>
               <SmoothScrollProvider>
                 {children}
+                <Toaster />
               </SmoothScrollProvider>
             </AuthProvider>
           </ThemeProvider>

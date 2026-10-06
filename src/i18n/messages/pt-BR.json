@@ -10,13 +10,13 @@
     "cancel": "Cancelar"
   },
   "nav": {
-  "dashboard": "Painel",
-  "vulnerabilities": "Vulnerabilidades",
-  "remediationPlans": "Planos de Correção",
-  "login": "Entrar",
-  "register": "Registrar",
-  "logout": "Sair"
-},
+    "dashboard": "Painel",
+    "vulnerabilities": "Vulnerabilidades",
+    "remediationPlans": "Planos de Correção",
+    "login": "Entrar",
+    "register": "Registrar",
+    "logout": "Sair"
+  },
   "landing": {
     "heroTitle1": "Segurança que",
     "heroTitle2": "ensina",
@@ -36,28 +36,44 @@
     "ctaTitle2": "atacante",
     "ctaDescription": "Conecte seu projeto, rode um scan e transforme cada alerta em uma lição. Sem mágica — só clareza.",
     "openDashboard": "Abrir dashboard",
-    "scanError": "Erro ao criar scan. Verifique se o backend está rodando."
+    "scanError": "Erro ao criar scan. O servidor pode estar ocupado ou acordando — tente novamente em instantes."
   },
   "modules": {
     "webScanner": {
       "title": "Scanner Web",
       "description": "Analisa aplicações web em busca de XSS, SQLi, CSRF, misconfigurations e outras falhas do OWASP Top 10.",
-      "features": ["XSS e Injeção", "Headers de segurança", "Controle de acesso"]
+      "features": [
+        "XSS e Injeção",
+        "Headers de segurança",
+        "Controle de acesso"
+      ]
     },
     "apiScanner": {
       "title": "Scanner de API",
       "description": "Testa endpoints REST e GraphQL: autenticação, autorização, validação de input e exposição de dados.",
-      "features": ["BOLA / IDOR", "Atribuição em massa", "Limitação de taxa"]
+      "features": [
+        "BOLA / IDOR",
+        "Atribuição em massa",
+        "Limitação de taxa"
+      ]
     },
     "dependencyAnalysis": {
       "title": "Análise de Dependências",
       "description": "Mapeia bibliotecas e pacotes do seu projeto, cruzando com CVEs e bases de vulnerabilidades conhecidas.",
-      "features": ["Correspondência de CVEs", "Licenças", "SBOM"]
+      "features": [
+        "Correspondência de CVEs",
+        "Licenças",
+        "SBOM"
+      ]
     },
     "configAudit": {
       "title": "Configuração",
       "description": "Audita configurações de servidor, TLS/SSL, headers HTTP, barramentos e hardening do ambiente.",
-      "features": ["Pontuação TLS", "Headers de segurança", "Fortalecimento"]
+      "features": [
+        "Pontuação TLS",
+        "Headers de segurança",
+        "Fortalecimento"
+      ]
     }
   },
   "dashboard": {
@@ -83,8 +99,8 @@
     "criticalCount": "{count} críticas",
     "achados": "{count} achados",
     "categories": " categorias",
-    "errorApi": "Erro ao conectar com a API. Verifique se o backend está rodando.",
-    "errorScan": "Erro ao criar scan. Verifique se o backend está rodando.",
+    "errorApi": "Não foi possível carregar os dados agora. O servidor pode estar ocupado ou acordando — tente novamente em instantes.",
+    "errorScan": "Erro ao criar scan. O servidor pode estar ocupado ou acordando — tente novamente em instantes.",
     "scansCount": "{count} scans realizados",
     "vulnerabilitiesCount": "vulnerabilidades"
   },
@@ -131,7 +147,10 @@
     "evidence": "Evidência",
     "recommendation": "Recomendação",
     "confidence": "Confiança",
-    "loadError": "Erro ao carregar scan"
+    "loadError": "Não foi possível carregar o scan agora. O servidor pode estar ocupado ou acordando — tente novamente.",
+    "scanCancelled": "Scan cancelado — os resultados parciais foram descartados e nada foi salvo.",
+    "scanCancelling": "Cancelando o scan... nenhum resultado será salvo.",
+    "scanQueued": "Scan na fila — os resultados aparecerão aqui quando a execução começar."
   },
   "vulnerabilities": {
     "title": "Vulnerabilidades",
@@ -266,5 +285,26 @@
     "resolutionNote": "Nota (opcional)",
     "resolutionNotePlaceholder": "Descreva como foi resolvida...",
     "confirmResolve": "Confirmar"
+  },
+  "scanStatus": {
+    "pending": "Na fila",
+    "running": "Em execução",
+    "cancelling": "Cancelando...",
+    "cancelled": "Cancelado",
+    "completed": "Concluído",
+    "failed": "Falhou"
+  },
+  "scans": {
+    "cancelAction": "Cancelar scan",
+    "cancelTitle": "Cancelar este scan?",
+    "cancelDescription": "O scan será interrompido agora. Resultados parciais não serão salvos. Essa ação não pode ser desfeita.",
+    "cancelConfirm": "Sim, cancelar",
+    "cancelPending": "Scan cancelado.",
+    "cancelRequested": "Cancelamento solicitado — o scan será encerrado em instantes.",
+    "cancelConflict": "Este scan já foi finalizado e não pode mais ser cancelado. Atualizando os dados.",
+    "cancelForbidden": "Você não tem permissão para cancelar este scan.",
+    "cancelNotFound": "Scan não encontrado.",
+    "queuedNotice": "Aguardando a vez — há scans sendo processados antes deste.",
+    "serverBusy": "O servidor pode estar ocupado ou acordando — tente novamente em instantes."
   }
 }

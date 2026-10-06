@@ -4,9 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import { Reveal } from "@/components/ui/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScanStatusBadge } from "@/components/ui/scan-status-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Navbar } from "@/components/layout/navbar";
 import {
@@ -15,12 +25,18 @@ import {
   Bug,
   Clock,
   Loader2,
-  CheckCircle2,
+  Ban,
   XCircle,
   ShieldAlert,
   FilterX,
 } from "lucide-react";
-import { api, Scan } from "@/lib/api";
+import {
+  api,
+  ApiError,
+  Scan,
+  isActiveScanStatus,
+  isConnectionError,
+} from "@/lib/api";
 import { formatScanDuration } from "@/lib/utils";
 import { groupVulnerabilities, type VulnerabilityGroup } from "@/lib/group-vulnerabilities";
 import {
@@ -50,24 +66,106 @@ export default function ScanDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<TabKey>("severity");
   const [activeSources, setActiveSources] = useState<Set<SourceGroupKey>>(new Set());
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
+  // Carga inicial (o api repete GETs com retentativa antes de desistir).
   useEffect(() => {
-    const fetchScan = async () => {
+    let alive = true;
+
+    const load = async () => {
       try {
         const data = await api.getScan(scanId);
+        if (!alive) return;
         setScan(data);
-      } catch {
-        setError(t("scanDetail.loadError"));
+        setError(null);
+      } catch (err) {
+        if (!alive) return;
+        setError(
+          isConnectionError(err) ? t("scans.serverBusy") : t("scanDetail.loadError"),
+        );
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
-    fetchScan();
-
-    const interval = setInterval(fetchScan, 5000);
-    return () => clearInterval(interval);
+    load();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanId]);
+
+  // Polling: só enquanto o scan está em fila, em execução ou cancelando.
+  // Ao chegar a um estado final o cleanup derruba o interval (sem vazamento).
+  const shouldPoll = scan ? isActiveScanStatus(scan.status) : false;
+
+  useEffect(() => {
+    if (!shouldPoll) return;
+
+    let alive = true;
+    let inFlight = false;
+
+    const poll = async () => {
+      if (!alive || inFlight) return;
+      inFlight = true;
+      try {
+        const data = await api.getScan(scanId);
+        if (!alive) return;
+        setScan(data);
+        setError(null);
+      } catch (err) {
+        // Falha pontual durante o polling não troca a tela por um erro.
+        console.warn("Polling do scan falhou:", err);
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const interval = setInterval(poll, 5000);
+    return () => {
+      alive = false;
+      clearInterval(interval);
+    };
+  }, [shouldPoll, scanId]);
+
+  const handleCancel = async () => {
+    if (!scan || cancelling) return;
+
+    setCancelling(true);
+    try {
+      const result = await api.cancelScan(scan.id);
+      const nextStatus = result.scan?.status ?? "cancelled";
+      setScan((prev) => (prev ? { ...prev, status: nextStatus } : prev));
+      toast.success(
+        nextStatus === "cancelled"
+          ? t("scans.cancelPending")
+          : t("scans.cancelRequested"),
+      );
+      setShowCancelDialog(false);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        toast.error(t("scans.cancelConflict"));
+        try {
+          const fresh = await api.getScan(scan.id);
+          setScan(fresh);
+        } catch {
+          // mantém o estado atual; o polling (se houver) atualiza depois
+        }
+      } else if (err instanceof ApiError && err.status === 403) {
+        toast.error(t("scans.cancelForbidden"));
+      } else if (err instanceof ApiError && err.status === 404) {
+        toast.error(t("scans.cancelNotFound"));
+      } else if (isConnectionError(err)) {
+        toast.error(t("scans.serverBusy"));
+      } else {
+        toast.error(err instanceof Error ? err.message : t("scans.serverBusy"));
+      }
+      setShowCancelDialog(false);
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const toggleSource = (key: SourceGroupKey) => {
     setActiveSources((prev) => {
@@ -155,16 +253,7 @@ export default function ScanDetailPage() {
     );
   }
 
-  const scanStatusConfig: Record<string, { label: string; icon: typeof CheckCircle2; color: string }> = {
-    pending: { label: t("status.pending"), icon: Clock, color: "text-muted-foreground" },
-    running: { label: t("status.running"), icon: Loader2, color: "text-amber-500" },
-    completed: { label: t("status.completed"), icon: CheckCircle2, color: "text-emerald-500" },
-    failed: { label: t("status.failed"), icon: XCircle, color: "text-red-500" },
-    cancelled: { label: t("status.cancelled"), icon: XCircle, color: "text-muted-foreground" },
-  };
-
-  const status = scanStatusConfig[scan.status] || scanStatusConfig.pending;
-  const StatusIcon = status.icon;
+  const canCancel = scan.status === "pending" || scan.status === "running";
   const vulnerabilities = scan.vulnerabilities ?? [];
 
   return (
@@ -178,14 +267,11 @@ export default function ScanDetailPage() {
               {t("scanDetail.backToDashboard")}
             </Link>
           </Button>
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl tracking-tight">{scan.targetUrl}</h1>
-              <div className="mt-2 flex items-center gap-3">
-                <span className={`flex items-center gap-1.5 text-sm ${status.color}`}>
-                  <StatusIcon className={`h-4 w-4 ${scan.status === "running" ? "animate-spin" : ""}`} />
-                  {status.label}
-                </span>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <ScanStatusBadge status={scan.status} />
                 <span className="text-sm text-muted-foreground">
                   {new Date(scan.createdAt).toLocaleDateString(locale === "pt-BR" ? "pt-BR" : "en-US")}
                 </span>
@@ -197,11 +283,34 @@ export default function ScanDetailPage() {
                 )}
               </div>
             </div>
+            {canCancel && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:hover:bg-red-950"
+                disabled={cancelling}
+                onClick={() => setShowCancelDialog(true)}
+              >
+                {cancelling ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <XCircle className="h-4 w-4" />
+                )}
+                {t("scans.cancelAction")}
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* Scan na fila: avisa que aguarda a vez */}
+        {scan.status === "pending" && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
+            <Clock className="h-4 w-4 shrink-0" />
+            {t("scans.queuedNotice")}
+          </div>
+        )}
         {/* Resumo no topo */}
         <Reveal>
           <SummaryOverview scan={scan} vulnerabilities={vulnerabilities} />
@@ -284,17 +393,27 @@ export default function ScanDetailPage() {
           </Reveal>
         )}
 
-        {/* Scan em execução / sem achados */}
+        {/* Sem achados: estados vazios coerentes (incluindo cancelado) */}
         {vulnerabilities.length === 0 && (
           <Reveal className="mt-8">
             <div className="rounded-lg border border-border bg-card px-6 py-10 text-center">
-              <ShieldCheck className="mx-auto h-8 w-8 text-primary" />
+              {scan.status === "cancelled" || scan.status === "cancelling" ? (
+                <Ban className="mx-auto h-8 w-8 text-muted-foreground" />
+              ) : (
+                <ShieldCheck className="mx-auto h-8 w-8 text-primary" />
+              )}
               <p className="mt-3 text-sm text-muted-foreground">
-                {scan.status === "running"
-                  ? t("scanDetail.scanRunning")
-                  : scan.status === "completed"
-                    ? t("scanDetail.noVulnerabilities")
-                    : t("scanDetail.scanNoResults")}
+                {scan.status === "cancelled"
+                  ? t("scanDetail.scanCancelled")
+                  : scan.status === "cancelling"
+                    ? t("scanDetail.scanCancelling")
+                    : scan.status === "pending"
+                      ? t("scanDetail.scanQueued")
+                      : scan.status === "running"
+                        ? t("scanDetail.scanRunning")
+                        : scan.status === "completed"
+                          ? t("scanDetail.noVulnerabilities")
+                          : t("scanDetail.scanNoResults")}
               </p>
             </div>
           </Reveal>
@@ -328,6 +447,41 @@ export default function ScanDetailPage() {
           </Reveal>
         )}
       </div>
+
+      {/* Cancel scan confirmation dialog */}
+      <Dialog
+        open={showCancelDialog}
+        onOpenChange={(open) => {
+          if (!open && !cancelling) setShowCancelDialog(false);
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t("scans.cancelTitle")}</DialogTitle>
+            <DialogDescription>{t("scans.cancelDescription")}</DialogDescription>
+          </DialogHeader>
+          <p className="truncate rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+            {scan.targetUrl}
+          </p>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setShowCancelDialog(false)}
+              disabled={cancelling}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancel}
+              disabled={cancelling}
+            >
+              {cancelling && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("scans.cancelConfirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

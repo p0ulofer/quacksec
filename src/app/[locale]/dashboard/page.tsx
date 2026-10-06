@@ -11,8 +11,18 @@ import {
   Legend,
 } from "recharts";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
+import { ScanStatusBadge } from "@/components/ui/scan-status-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Navbar } from "@/components/layout/navbar";
 import {
   ShieldCheck,
@@ -27,9 +37,18 @@ import {
   Search,
   X,
   Trash2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { api, DashboardStats, Scan } from "@/lib/api";
+import {
+  api,
+  ApiError,
+  DashboardStats,
+  Scan,
+  isActiveScanStatus,
+  isConnectionError,
+} from "@/lib/api";
 import { formatScanDuration } from "@/lib/utils";
 
 export default function DashboardPage() {
@@ -52,6 +71,10 @@ export default function DashboardPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // --- Cancel scan state ---
+  const [cancelTarget, setCancelTarget] = useState<Scan | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -70,6 +93,88 @@ export default function DashboardPage() {
     };
     load();
   }, []);
+
+  // Polling: só enquanto houver scan em fila, em execução ou cancelando.
+  // O cleanup do interval evita timers duplicados ao desmontar/navegar.
+  const hasActiveScans = recentScans.some((scan) =>
+    isActiveScanStatus(scan.status),
+  );
+
+  useEffect(() => {
+    if (!hasActiveScans) return;
+
+    let alive = true;
+    let inFlight = false;
+
+    const poll = async () => {
+      if (!alive || inFlight) return;
+      inFlight = true;
+      try {
+        const scans = await api.getScans();
+        if (!alive) return;
+        setRecentScans(scans.slice(0, 5));
+      } catch (err) {
+        // Falha pontual no polling não derruba a tela: o próprio api
+        // já repete GETs com retentativa antes de desistir.
+        console.warn("Polling de scans falhou:", err);
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const interval = setInterval(poll, 5000);
+    return () => {
+      alive = false;
+      clearInterval(interval);
+    };
+  }, [hasActiveScans]);
+
+  const refreshScansSilently = async () => {
+    try {
+      const scans = await api.getScans();
+      setRecentScans(scans.slice(0, 5));
+    } catch (err) {
+      console.warn("Falha ao atualizar scans:", err);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    const target = cancelTarget;
+    if (!target) return;
+
+    setCancelling(true);
+    try {
+      const result = await api.cancelScan(target.id);
+      const nextStatus = result.scan?.status ?? "cancelled";
+      setRecentScans((prev) =>
+        prev.map((scan) =>
+          scan.id === target.id ? { ...scan, status: nextStatus } : scan,
+        ),
+      );
+      toast.success(
+        nextStatus === "cancelled"
+          ? t("scans.cancelPending")
+          : t("scans.cancelRequested"),
+      );
+      setCancelTarget(null);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        toast.error(t("scans.cancelConflict"));
+        void refreshScansSilently();
+      } else if (err instanceof ApiError && err.status === 403) {
+        toast.error(t("scans.cancelForbidden"));
+      } else if (err instanceof ApiError && err.status === 404) {
+        toast.error(t("scans.cancelNotFound"));
+      } else if (isConnectionError(err)) {
+        toast.error(t("scans.serverBusy"));
+      } else {
+        toast.error(err instanceof Error ? err.message : t("scans.serverBusy"));
+      }
+      setCancelTarget(null);
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -322,45 +427,55 @@ export default function DashboardPage() {
                   ) : (
                     <div className="space-y-3">
                       {recentScans.map((scan) => (
-                        <Link
+                        <div
                           key={scan.id}
-                          href={`/${locale}/scans/${scan.id}`}
-                          className="flex items-center justify-between rounded-lg border border-border bg-background p-4 transition-colors hover:border-primary/30"
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background p-4 transition-colors hover:border-primary/30"
                         >
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`flex h-2 w-2 rounded-full ${
-                                scan.status === "completed"
-                                  ? "bg-emerald-500"
-                                  : scan.status === "running"
-                                    ? "bg-amber-500 animate-pulse"
-                                    : scan.status === "failed"
-                                      ? "bg-red-500"
-                                      : "bg-gray-400"
-                              }`}
-                            />
-                            <div>
+                          <Link
+                            href={`/${locale}/scans/${scan.id}`}
+                            className="flex min-w-0 flex-1 items-center gap-4"
+                          >
+                            <ScanStatusBadge status={scan.status} />
+                            <div className="min-w-0">
                               <p className="text-sm font-medium truncate max-w-md">
                                 {scan.targetUrl}
                               </p>
                               <p className="mt-0.5 text-xs text-muted-foreground">
-                                {t(`status.${scan.status}`)} ·{" "}
                                 {scan.totalVulnerabilities} {t("dashboard.vulnerabilitiesCount")}
                                 {formatScanDuration(scan.startedAt, scan.completedAt, locale) && (
                                   <> · {formatScanDuration(scan.startedAt, scan.completedAt, locale)}</>
                                 )}
                               </p>
+                              {scan.status === "pending" && (
+                                <p className="mt-0.5 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                  <Clock className="h-3 w-3" />
+                                  {t("scans.queuedNotice")}
+                                </p>
+                              )}
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
+                          </Link>
+                          <div className="flex shrink-0 items-center gap-3">
                             {scan.securityScore !== null && (
                               <span className="text-sm font-semibold text-primary">
                                 {scan.securityScore}/10
                               </span>
                             )}
+                            {(scan.status === "pending" ||
+                              scan.status === "running") && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:hover:bg-red-950"
+                                disabled={cancelling}
+                                onClick={() => setCancelTarget(scan)}
+                              >
+                                <XCircle className="h-3.5 w-3.5" />
+                                {t("scans.cancelAction")}
+                              </Button>
+                            )}
                             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                           </div>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -466,6 +581,43 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+
+      {/* Cancel scan confirmation dialog */}
+      <Dialog
+        open={!!cancelTarget}
+        onOpenChange={(open) => {
+          if (!open && !cancelling) setCancelTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t("scans.cancelTitle")}</DialogTitle>
+            <DialogDescription>{t("scans.cancelDescription")}</DialogDescription>
+          </DialogHeader>
+          {cancelTarget && (
+            <p className="truncate rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+              {cancelTarget.targetUrl}
+            </p>
+          )}
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setCancelTarget(null)}
+              disabled={cancelling}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmCancel}
+              disabled={cancelling}
+            >
+              {cancelling && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("scans.cancelConfirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete account modal */}
       {showDeleteModal && (
