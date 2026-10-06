@@ -138,16 +138,6 @@ export default function LandingPage() {
                 </Button>
               </motion.div>
             </div>
-
-            {/* Hero visual: mini dashboard ilustrativo */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="mx-auto mt-20 max-w-3xl"
-            >
-              <MiniDashboardPreview />
-            </motion.div>
           </div>
         </section>
 
@@ -298,25 +288,6 @@ function ModuleCard({
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function MiniDashboardPreview() {
-  const t = useTranslations();
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="text-center">
-        <span className="font-serif text-6xl text-primary">7.2</span>
-        <span className="ml-1 text-sm text-muted-foreground">/10</span>
-      </div>
-      <div className="flex items-center gap-6 text-sm text-muted-foreground">
-        <span>{t("landing.preview.vulnCount")}</span>
-        <span className="h-1 w-1 rounded-full bg-border" />
-        <span>{t("landing.preview.appsCount")}</span>
-        <span className="h-1 w-1 rounded-full bg-border" />
-        <span>{t("landing.preview.lastScan")}</span>
-      </div>
     </div>
   );
 }

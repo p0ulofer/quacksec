@@ -36,12 +36,7 @@
     "ctaTitle2": "atacante",
     "ctaDescription": "Conecte seu projeto, rode um scan e transforme cada alerta em uma lição. Sem mágica — só clareza.",
     "openDashboard": "Abrir dashboard",
-    "scanError": "Erro ao criar scan. Verifique se o backend está rodando.",
-    "preview": {
-      "vulnCount": "14 vulnerabilidades",
-      "appsCount": "7 apps monitorados",
-      "lastScan": "Último scan há 2 min"
-    }
+    "scanError": "Erro ao criar scan. Verifique se o backend está rodando."
   },
   "modules": {
     "webScanner": {
