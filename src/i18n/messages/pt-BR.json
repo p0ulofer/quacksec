@@ -21,6 +21,7 @@
   "profile": {
     "title": "Perfil",
     "description": "Gerencie seus dados pessoais e a segurança da conta",
+    "dialogDescription": "Suas informações pessoais",
     "infoTitle": "Informações pessoais",
     "infoDescription": "Atualize seu nome e e-mail",
     "name": "Nome",

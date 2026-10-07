@@ -21,6 +21,7 @@
   "profile": {
     "title": "Profile",
     "description": "Manage your personal data and account security",
+    "dialogDescription": "Your personal information",
     "infoTitle": "Personal information",
     "infoDescription": "Update your name and email",
     "name": "Name",
