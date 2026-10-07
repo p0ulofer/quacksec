@@ -1,7 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { locales, defaultLocale } from "@/i18n/config";
 
-const protectedRoutes = ["/dashboard", "/scans", "/vulnerabilidades"];
+const protectedRoutes = ["/dashboard", "/scans", "/vulnerabilidades", "/profile"];
 const authRoutes = ["/login", "/register"];
 
 const handleI18nRouting = createMiddleware({

@@ -168,6 +168,12 @@ export interface RemediationPlan {
   assignedTo?: { id: string; name: string; email: string } | null;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface DashboardStats {
   totalScans: number;
   totalVulnerabilities: number;
@@ -336,6 +342,24 @@ class ApiClient {
 
   async getScannedUrls(): Promise<ScannedUrl[]> {
     return this.request<ScannedUrl[]>("/applications/scanned-urls", undefined, GET_RETRIES);
+  }
+
+  async getMe(): Promise<UserProfile> {
+    return this.request<UserProfile>("/users/me", undefined, GET_RETRIES);
+  }
+
+  async updateProfile(data: { name?: string; email?: string }): Promise<UserProfile> {
+    return this.request<UserProfile>("/users/me", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.request<{ message: string }>("/users/me/password", {
+      method: "PATCH",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
   }
 
   async deleteAccount(password: string): Promise<void> {

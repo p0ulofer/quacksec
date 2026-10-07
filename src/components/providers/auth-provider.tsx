@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -30,32 +31,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
+    let token = getTokenFromCookie();
+    if (!token) {
+      token = (await refreshSession()) ? getTokenFromCookie() : undefined;
+    }
+    if (!token) return null;
+
+    const fetchMe = () =>
+      fetch(`${getApiUrl()}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      });
+
+    let response = await fetchMe();
+    if (response.status === 401 && (await refreshSession())) {
+      token = getTokenFromCookie();
+      response = await fetchMe();
+    }
+
+    if (!response.ok) return null;
+    return (await response.json()) as User;
+  }, []);
+
   const checkAuth = useCallback(async () => {
     try {
-      let token = getTokenFromCookie();
-      if (!token) {
-        token = (await refreshSession()) ? getTokenFromCookie() : undefined;
-      }
-      if (!token) {
-        setUser(null);
-        return;
-      }
-
-      const fetchMe = () =>
-        fetch(`${getApiUrl()}/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        });
-
-      let response = await fetchMe();
-      if (response.status === 401 && (await refreshSession())) {
-        token = getTokenFromCookie();
-        response = await fetchMe();
-      }
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+      const currentUser = await fetchCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
       } else {
         document.cookie = "access_token=; path=/; max-age=0";
         document.cookie = "refresh_token=; path=/; max-age=0";
@@ -66,11 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchCurrentUser]);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  const refreshUser = async () => {
+    const currentUser = await fetchCurrentUser();
+    if (currentUser) setUser(currentUser);
+  };
 
   const login = async (email: string, password: string) => {
     const response = await fetch(`${getApiUrl()}/auth/login`, {
@@ -131,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
         isAuthenticated: !!user,
       }}
     >
