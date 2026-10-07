@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { User, Mail, Loader2, Save, Trash2 } from "lucide-react";
+import { User, Mail, Lock, Loader2, Save, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,8 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
   const [nameDraft, setNameDraft] = useState<string | null>(null);
   const [emailDraft, setEmailDraft] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [profilePassword, setProfilePassword] = useState("");
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -52,6 +54,8 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
     setMode("view");
     setNameDraft(null);
     setEmailDraft(null);
+    setProfilePassword("");
+    setProfileError(null);
     setDeletePassword("");
     setDeleteError(null);
   };
@@ -64,14 +68,22 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setProfileError(null);
     try {
-      await api.updateProfile({ name: name.trim(), email: email.trim() });
+      await api.updateProfile({
+        name: name.trim(),
+        email: email.trim(),
+        password: profilePassword,
+      });
       setNameDraft(null);
       setEmailDraft(null);
+      setProfilePassword("");
       await refreshUser();
       toast.success(t("profile.updateSuccess"));
     } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
+      if (err instanceof ApiError && err.status === 401) {
+        setProfileError(t("profile.invalidPassword"));
+      } else if (err instanceof ApiError && err.status === 409) {
         toast.error(t("profile.emailTaken"));
       } else {
         toast.error(apiErrorMessage(err, t("profile.genericError")));
@@ -145,6 +157,31 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
               />
             </div>
 
+            <div className="space-y-1.5">
+              <Label htmlFor="dialog-profile-password" className="flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5 text-primary" />
+                {t("profile.currentPassword")}
+              </Label>
+              <input
+                id="dialog-profile-password"
+                type="password"
+                value={profilePassword}
+                onChange={(e) => {
+                  setProfilePassword(e.target.value);
+                  setProfileError(null);
+                }}
+                className={inputClass}
+                autoComplete="current-password"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("profile.passwordHint")}
+              </p>
+              {profileError && (
+                <p className="text-xs text-red-500">{profileError}</p>
+              )}
+            </div>
+
             <DialogFooter className="flex-col gap-2 sm:flex-row">
               <Button
                 type="button"
@@ -160,7 +197,13 @@ export function UserProfileDialog({ children }: { children: React.ReactNode }) {
                 type="submit"
                 size="sm"
                 className="gap-2"
-                disabled={saving || !dirty || !name.trim() || !email.trim()}
+                disabled={
+                  saving ||
+                  !dirty ||
+                  !name.trim() ||
+                  !email.trim() ||
+                  !profilePassword
+                }
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

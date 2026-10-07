@@ -348,7 +348,11 @@ class ApiClient {
     return this.request<UserProfile>("/users/me", undefined, GET_RETRIES);
   }
 
-  async updateProfile(data: { name?: string; email?: string }): Promise<UserProfile> {
+  async updateProfile(data: {
+    name?: string;
+    email?: string;
+    password: string;
+  }): Promise<UserProfile> {
     return this.request<UserProfile>("/users/me", {
       method: "PATCH",
       body: JSON.stringify(data),

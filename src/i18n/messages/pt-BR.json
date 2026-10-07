@@ -22,6 +22,7 @@
     "title": "Perfil",
     "description": "Gerencie seus dados pessoais e a segurança da conta",
     "dialogDescription": "Suas informações pessoais",
+    "passwordHint": "Informe sua senha atual para confirmar as alterações.",
     "infoTitle": "Informações pessoais",
     "infoDescription": "Atualize seu nome e e-mail",
     "name": "Nome",

@@ -45,6 +45,8 @@ export default function ProfilePage() {
 
   const [nameDraft, setNameDraft] = useState<string | null>(null);
   const [emailDraft, setEmailDraft] = useState<string | null>(null);
+  const [profilePassword, setProfilePassword] = useState("");
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -69,14 +71,22 @@ export default function ProfilePage() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
+    setProfileError(null);
     try {
-      await api.updateProfile({ name: name.trim(), email: email.trim() });
+      await api.updateProfile({
+        name: name.trim(),
+        email: email.trim(),
+        password: profilePassword,
+      });
       setNameDraft(null);
       setEmailDraft(null);
+      setProfilePassword("");
       await refreshUser();
       toast.success(t("profile.updateSuccess"));
     } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
+      if (err instanceof ApiError && err.status === 401) {
+        setProfileError(t("profile.invalidPassword"));
+      } else if (err instanceof ApiError && err.status === 409) {
         toast.error(t("profile.emailTaken"));
       } else {
         toast.error(apiErrorMessage(err, t("profile.genericError")));
@@ -199,6 +209,33 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-confirm-password">
+                      {t("profile.currentPassword")}
+                    </Label>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        id="profile-confirm-password"
+                        type="password"
+                        value={profilePassword}
+                        onChange={(e) => {
+                          setProfilePassword(e.target.value);
+                          setProfileError(null);
+                        }}
+                        className={`${inputClass} pl-9`}
+                        autoComplete="current-password"
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {t("profile.passwordHint")}
+                    </p>
+                    {profileError && (
+                      <p className="text-sm text-red-500">{profileError}</p>
+                    )}
+                  </div>
+
                   <div className="flex justify-end">
                     <Button
                       type="submit"
@@ -208,6 +245,7 @@ export default function ProfilePage() {
                         savingProfile ||
                         !name.trim() ||
                         !email.trim() ||
+                        !profilePassword ||
                         (name.trim() === user?.name && email.trim() === user?.email)
                       }
                     >
