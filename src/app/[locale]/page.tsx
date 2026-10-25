@@ -20,7 +20,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -28,6 +28,7 @@ export default function LandingPage() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{ id: string; status: string } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [unauthorizedHost, setUnauthorizedHost] = useState<string | null>(null);
 
   const modules = [
     {
@@ -63,13 +64,24 @@ export default function LandingPage() {
     setScanning(true);
     setScanError(null);
     setScanResult(null);
+    setUnauthorizedHost(null);
 
     try {
       const result = await api.createScan(scanUrl);
       setScanResult({ id: result.id, status: result.status });
       setScanUrl("");
-    } catch {
-      setScanError(t("landing.scanError"));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        let extracted = scanUrl;
+        try {
+          const u = new URL(scanUrl.startsWith("http") ? scanUrl : `http://${scanUrl}`);
+          extracted = u.hostname;
+        } catch {}
+        setUnauthorizedHost(extracted);
+        setScanError(err.message || t("scans.unauthorizedHost", { host: extracted }));
+      } else {
+        setScanError(t("landing.scanError"));
+      }
     } finally {
       setScanning(false);
     }
@@ -182,7 +194,16 @@ export default function LandingPage() {
                 </div>
 
                 {scanError && (
-                  <p className="text-sm text-red-500">{scanError}</p>
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-left">
+                    <span>{scanError}</span>
+                    {unauthorizedHost && (
+                      <Button asChild variant="outline" size="sm" className="self-start text-xs border-destructive/40 hover:bg-destructive/10">
+                        <Link href="/domains">
+                          {t("scans.manageDomains")}
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 )}
 
                 {scanResult && (

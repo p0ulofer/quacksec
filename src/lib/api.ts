@@ -424,7 +424,67 @@ class ApiClient {
     });
   }
 
+  async getDomains(): Promise<DomainResponse[]> {
+    return this.request<DomainResponse[]>("/domains", undefined, GET_RETRIES);
+  }
+
+  async createDomain(hostname: string): Promise<DomainResponse> {
+    return this.request<DomainResponse>("/domains", {
+      method: "POST",
+      body: JSON.stringify({ hostname }),
+    });
+  }
+
+  async verifyDomain(
+    id: string,
+    method: DomainVerificationMethod
+  ): Promise<DomainResponse> {
+    return this.request<DomainResponse>(`/domains/${id}/verify`, {
+      method: "POST",
+      body: JSON.stringify({ method }),
+    });
+  }
+
+  async deleteDomain(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/domains/${id}`, {
+      method: "DELETE",
+    });
+  }
+
   
 }
 
 export const api = new ApiClient();
+
+export type DomainVerificationMethod = "dns" | "file";
+export type DomainVerificationStatus = "pending" | "verified" | "failed" | "expired";
+
+export interface DomainInstructions {
+  dns: {
+    type: "TXT";
+    name: string;
+    value: string;
+    apexName: string | null;
+    note?: string;
+  } | null;
+  file: {
+    path: string;
+    url: string;
+    content: string;
+  };
+}
+
+export interface DomainResponse {
+  id: string;
+  hostname: string;
+  method: DomainVerificationMethod | null;
+  status: DomainVerificationStatus;
+  verifiedAt: string | null;
+  lastCheckedAt: string | null;
+  expiresAt: string | null;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+  token: string;
+  instructions: DomainInstructions;
+}

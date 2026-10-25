@@ -23,9 +23,10 @@ export function Navbar() {
 
   const navLinks = [
     { href: `/${locale}/dashboard`, label: t("nav.dashboard") },
-    { href: `/${locale}/profile`, label: t("nav.profile") },
+    { href: `/${locale}/domains`, label: t("nav.domains") },
     { href: `/${locale}/vulnerabilidades`, label: t("nav.vulnerabilities") },
     { href: `/${locale}/vulnerabilidades/planos`, label: t("nav.remediationPlans") },
+    { href: `/${locale}/profile`, label: t("nav.profile") },
   ];
 
   return (

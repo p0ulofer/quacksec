@@ -43,6 +43,7 @@ import {
   api,
   ApiError,
   DashboardStats,
+  DomainResponse,
   Scan,
   isActiveScanStatus,
   isConnectionError,
@@ -61,6 +62,8 @@ export default function DashboardPage() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{ id: string; status: string } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [domains, setDomains] = useState<DomainResponse[]>([]);
+  const [unauthorizedHost, setUnauthorizedHost] = useState<string | null>(null);
 
   // --- Cancel scan state ---
   const [cancelTarget, setCancelTarget] = useState<Scan | null>(null);
@@ -69,12 +72,14 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [statsData, scansData] = await Promise.all([
+        const [statsData, scansData, domainsData] = await Promise.all([
           api.getDashboardStats(),
           api.getScans(),
+          api.getDomains().catch(() => [] as DomainResponse[]),
         ]);
         setStats(statsData);
         setRecentScans(scansData.slice(0, 5));
+        setDomains(domainsData);
       } catch (err) {
         setError(t("dashboard.errorApi"));
         console.error(err);
@@ -171,12 +176,14 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [statsData, scansData] = await Promise.all([
+      const [statsData, scansData, domainsData] = await Promise.all([
         api.getDashboardStats(),
         api.getScans(),
+        api.getDomains().catch(() => [] as DomainResponse[]),
       ]);
       setStats(statsData);
       setRecentScans(scansData.slice(0, 5));
+      setDomains(domainsData);
     } catch (err) {
       setError(t("dashboard.errorApi"));
       console.error(err);
@@ -193,14 +200,27 @@ export default function DashboardPage() {
     setScanError(null);
     setScanResult(null);
 
+    setUnauthorizedHost(null);
     try {
       const result = await api.createScan(scanUrl);
       setScanResult({ id: result.id, status: result.status });
       setScanUrl("");
       setShowScanInput(false);
       fetchData();
-    } catch {
-      setScanError(t("dashboard.errorScan"));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        let extractedHost = scanUrl;
+        try {
+          const u = new URL(scanUrl.startsWith("http") ? scanUrl : `http://${scanUrl}`);
+          extractedHost = u.hostname;
+        } catch {}
+        setUnauthorizedHost(extractedHost);
+        setScanError(err.message || t("scans.unauthorizedHost", { host: extractedHost }));
+      } else if (isConnectionError(err)) {
+        setScanError(t("scans.serverBusy"));
+      } else {
+        setScanError(err instanceof Error ? err.message : t("dashboard.errorScan"));
+      }
     } finally {
       setScanning(false);
     }
@@ -303,48 +323,95 @@ export default function DashboardPage() {
       {showScanInput && (
         <div className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-7xl px-6 py-4">
-            <form onSubmit={handleScan} className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={scanUrl}
-                  onChange={(e) => setScanUrl(e.target.value)}
-                  placeholder="https://example.com"
-                  className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  disabled={scanning}
-                  required
-                  autoFocus
-                />
-                <Button type="submit" disabled={scanning || !scanUrl.trim()}>
-                  {scanning ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Search className="h-4 w-4" />
-                      {t("landing.scanButton")}
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {scanError && (
-                <p className="text-sm text-red-500">{scanError}</p>
-              )}
-
-              {scanResult && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                    {t("common.scanCreated")}{" "}
-                    <Link
-                      href={`/${locale}/scans/${scanResult.id}`}
-                      className="font-medium underline"
-                    >
-                      {t("common.viewResult")}
+            {/* Se não houver domínios verificados, mostra alerta com link */}
+            {domains.filter((d) => d.status === "verified").length === 0 ? (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-200">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-semibold">{t("scans.noVerifiedDomains")}</p>
+                  </div>
+                  <Button asChild size="sm">
+                    <Link href={`/${locale}/domains`}>
+                      {t("scans.goToDomains")}
                     </Link>
-                  </p>
+                  </Button>
                 </div>
-              )}
-            </form>
+              </div>
+            ) : (
+              <form onSubmit={handleScan} className="flex flex-col gap-3">
+                {/* Sugestões de domínios verificados */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {t("scans.verifiedHost")}:
+                  </span>
+                  {domains
+                    .filter((d) => d.status === "verified")
+                    .map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => setScanUrl(`https://${d.hostname}`)}
+                        className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-mono text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        {d.hostname}
+                      </button>
+                    ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={scanUrl}
+                    onChange={(e) => {
+                      setScanUrl(e.target.value);
+                      setUnauthorizedHost(null);
+                    }}
+                    placeholder="https://exemplo.com"
+                    className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    disabled={scanning}
+                    required
+                    autoFocus
+                  />
+                  <Button type="submit" disabled={scanning || !scanUrl.trim()}>
+                    {scanning ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4" />
+                        {t("landing.scanButton")}
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {scanError && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <span>{scanError}</span>
+                    {unauthorizedHost && (
+                      <Button asChild variant="outline" size="sm" className="self-start text-xs border-destructive/40 hover:bg-destructive/10">
+                        <Link href={`/${locale}/domains`}>
+                          {t("scans.manageDomains")}
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {scanResult && (
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                      {t("common.scanCreated")}{" "}
+                      <Link
+                        href={`/${locale}/scans/${scanResult.id}`}
+                        className="font-medium underline"
+                      >
+                        {t("common.viewResult")}
+                      </Link>
+                    </p>
+                  </div>
+                )}
+              </form>
+            )}
           </div>
         </div>
       )}
