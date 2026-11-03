@@ -14,19 +14,26 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setNeedsVerification(false);
     setLoading(true);
 
     try {
       await login(email, password);
       window.location.href = `/${locale}/dashboard`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("login.error"));
+      if (err instanceof Error && err.message === "EMAIL_NOT_VERIFIED") {
+        setNeedsVerification(true);
+        setError(t("emailVerification.loginBlocked"));
+      } else {
+        setError(err instanceof Error ? err.message : t("login.error"));
+      }
     } finally {
       setLoading(false);
     }
@@ -83,7 +90,17 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">{error}</p>
+              <div className="space-y-1">
+                <p className="text-sm text-red-500">{error}</p>
+                {needsVerification && (
+                  <Link
+                    href={`/${locale}/verify-email`}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    {t("emailVerification.goToVerification")}
+                  </Link>
+                )}
+              </div>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>

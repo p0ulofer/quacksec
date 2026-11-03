@@ -23,12 +23,35 @@ export function isActiveScanStatus(status: string): boolean {
  * (o servidor pode estar ocupado ou acordando — não é queda definitiva). */
 export class ApiError extends Error {
   readonly status: number;
+  /** Código estável devolvido pelo backend (ex.: EMAIL_NOT_VERIFIED). */
+  readonly code?: string;
+  /** Segundos sugeridos pelo backend em respostas 429. */
+  readonly retryAfterSeconds?: number;
 
-  constructor(message: string, status: number) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    retryAfterSeconds?: number
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = code;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
+}
+
+/** Evento global disparado quando o backend bloqueia uma ação porque o
+ * e-mail ainda não foi confirmado. Componentes podem ouvir para atualizar
+ * o banner/estado sem cada página repetir a checagem. */
+export const EMAIL_NOT_VERIFIED_EVENT = "quacksec:email-not-verified";
+
+export function isEmailNotVerified(err: unknown): boolean {
+  return (
+    err instanceof ApiError &&
+    (err.code === "EMAIL_NOT_VERIFIED" || err.message === "EMAIL_NOT_VERIFIED")
+  );
 }
 
 export function isConnectionError(err: unknown): boolean {
@@ -172,6 +195,9 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
+  emailVerifiedAt: string | null;
+  pendingEmail: string | null;
 }
 
 export interface DashboardStats {
@@ -270,7 +296,24 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: response.statusText }));
-      throw new ApiError(error.message || "API request failed", response.status);
+      const message = error.message || "API request failed";
+      const code = typeof error.code === "string" ? error.code : undefined;
+      const retryAfterSeconds =
+        typeof error.retryAfterSeconds === "number"
+          ? error.retryAfterSeconds
+          : undefined;
+
+      // Tratamento centralizado: qualquer rota pode devolver
+      // EMAIL_NOT_VERIFIED (guard). Emite um evento para a UI reagir uma
+      // única vez, independentemente da página que fez a chamada.
+      if (
+        (code === "EMAIL_NOT_VERIFIED" || message === "EMAIL_NOT_VERIFIED") &&
+        typeof window !== "undefined"
+      ) {
+        window.dispatchEvent(new CustomEvent(EMAIL_NOT_VERIFIED_EVENT));
+      }
+
+      throw new ApiError(message, response.status, code, retryAfterSeconds);
     }
 
     return response.json();
@@ -346,6 +389,38 @@ class ApiClient {
 
   async getMe(): Promise<UserProfile> {
     return this.request<UserProfile>("/users/me", undefined, GET_RETRIES);
+  }
+
+  /** Confirma o e-mail a partir do token de uso único recebido por e-mail. */
+  async verifyEmail(token: string): Promise<{ message: string; email: string }> {
+    return this.request<{ message: string; email: string }>("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    });
+  }
+
+  /** Confirma o e-mail usando o código de 6 dígitos recebido por e-mail. */
+  async verifyEmailCode(
+    email: string,
+    code: string
+  ): Promise<{ message: string; email: string }> {
+    return this.request<{ message: string; email: string }>("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    });
+  }
+
+  /** Reenvia o link. A resposta é sempre genérica (não revela cadastro). */
+  async resendVerification(
+    email?: string
+  ): Promise<{ message: string; retryAfterSeconds?: number }> {
+    return this.request<{ message: string; retryAfterSeconds?: number }>(
+      "/auth/resend-verification",
+      {
+        method: "POST",
+        body: JSON.stringify(email ? { email } : {}),
+      }
+    );
   }
 
   async updateProfile(data: {

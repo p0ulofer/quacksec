@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Navbar } from "@/components/layout/navbar";
+import { EmailVerificationBanner } from "@/components/email/email-verification-banner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +44,7 @@ import {
   DomainVerificationMethod,
   DomainVerificationStatus,
   isConnectionError,
+  isEmailNotVerified,
 } from "@/lib/api";
 
 function extractHostname(input: string): string {
@@ -58,6 +62,8 @@ function extractHostname(input: string): string {
 
 export default function DomainsPage() {
   const t = useTranslations();
+  const { user } = useAuth();
+  const emailBlocked = !!user && !user.emailVerified;
   const [domains, setDomains] = useState<DomainResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,6 +130,10 @@ export default function DomainsPage() {
 
   const handleAddDomain = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (emailBlocked) {
+      toast.error(t("emailVerification.blockedAction"));
+      return;
+    }
     const cleanHost = extractHostname(hostnameInput);
     if (!cleanHost) return;
 
@@ -140,7 +150,9 @@ export default function DomainsPage() {
       setDisclaimerChecked(false);
       await fetchDomains();
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (isEmailNotVerified(err)) {
+        toast.error(t("emailVerification.blockedAction"));
+      } else if (err instanceof ApiError) {
         if (err.status === 403) {
           toast.error(t("domains.errors.limitReached"));
         } else if (err.status === 400) {
@@ -182,7 +194,9 @@ export default function DomainsPage() {
       setVerifyTarget(null);
       await fetchDomains();
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (isEmailNotVerified(err)) {
+        toast.error(t("emailVerification.blockedAction"));
+      } else if (err instanceof ApiError) {
         if (err.status === 429) {
           toast.error(t("domains.errors.rateLimited"));
         } else if (err.status === 400) {
@@ -281,6 +295,12 @@ export default function DomainsPage() {
             </Button>
           </div>
 
+          {emailBlocked && (
+            <div className="mt-6">
+              <EmailVerificationBanner />
+            </div>
+          )}
+
           {/* Add Domain Form Card */}
           <Reveal className="mt-8">
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
@@ -300,30 +320,40 @@ export default function DomainsPage() {
                       value={hostnameInput}
                       onChange={(e) => setHostnameInput(e.target.value)}
                       placeholder={t("domains.hostnamePlaceholder")}
-                      disabled={addingDomain}
+                      disabled={addingDomain || emailBlocked}
                       required
                       className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
 
                   <div className="flex items-end">
-                    <Button
-                      type="submit"
-                      disabled={addingDomain || !hostnameInput.trim() || !disclaimerChecked}
-                      className="w-full gap-2"
+                    <Tooltip
+                      content={t("emailVerification.blockedAction")}
+                      className="w-full"
                     >
-                      {addingDomain ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          {t("domains.adding")}
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-4 w-4" />
-                          {t("domains.addButton")}
-                        </>
-                      )}
-                    </Button>
+                      <Button
+                        type="submit"
+                        disabled={
+                          addingDomain ||
+                          emailBlocked ||
+                          !hostnameInput.trim() ||
+                          !disclaimerChecked
+                        }
+                        className="w-full gap-2"
+                      >
+                        {addingDomain ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {t("domains.adding")}
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4" />
+                            {t("domains.addButton")}
+                          </>
+                        )}
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
 
@@ -334,6 +364,7 @@ export default function DomainsPage() {
                     id="disclaimer-checkbox"
                     checked={disclaimerChecked}
                     onChange={(e) => setDisclaimerChecked(e.target.checked)}
+                    disabled={emailBlocked}
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                   />
                   <label

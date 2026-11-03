@@ -7,6 +7,9 @@ interface User {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
+  emailVerifiedAt: string | null;
+  pendingEmail: string | null;
 }
 
 interface AuthContextType {
@@ -72,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchCurrentUser]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- checkAuth atualiza o estado após a resposta assíncrona; a chamada inicial é intencional.
     checkAuth();
   }, [checkAuth]);
 

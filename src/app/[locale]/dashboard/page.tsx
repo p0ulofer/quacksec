@@ -23,6 +23,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Navbar } from "@/components/layout/navbar";
+import { EmailVerificationBanner } from "@/components/email/email-verification-banner";
+import { Tooltip as InfoTooltip } from "@/components/ui/tooltip";
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   ShieldCheck,
   Globe,
@@ -47,12 +50,15 @@ import {
   Scan,
   isActiveScanStatus,
   isConnectionError,
+  isEmailNotVerified,
 } from "@/lib/api";
 import { formatScanDuration } from "@/lib/utils";
 
 export default function DashboardPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const { user } = useAuth();
+  const emailBlocked = !!user && !user.emailVerified;
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -208,7 +214,10 @@ export default function DashboardPage() {
       setShowScanInput(false);
       fetchData();
     } catch (err) {
-      if (err instanceof ApiError && err.status === 403) {
+      if (isEmailNotVerified(err)) {
+        setUnauthorizedHost(null);
+        setScanError(t("emailVerification.blockedAction"));
+      } else if (err instanceof ApiError && err.status === 403) {
         let extractedHost = scanUrl;
         try {
           const u = new URL(scanUrl.startsWith("http") ? scanUrl : `http://${scanUrl}`);
@@ -298,29 +307,38 @@ export default function DashboardPage() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               {t("dashboard.refresh")}
             </Button>
-            <Button
-              size="sm"
-              className="gap-2"
-              onClick={() => setShowScanInput(!showScanInput)}
-            >
-              {showScanInput ? (
-                <>
-                  <X className="h-4 w-4" />
-                  {t("dashboard.close")}
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4" />
-                  {t("dashboard.newScan")}
-                </>
-              )}
-            </Button>
+            <InfoTooltip content={t("emailVerification.blockedAction")}>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => setShowScanInput(!showScanInput)}
+                disabled={emailBlocked}
+              >
+                {showScanInput ? (
+                  <>
+                    <X className="h-4 w-4" />
+                    {t("dashboard.close")}
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4" />
+                    {t("dashboard.newScan")}
+                  </>
+                )}
+              </Button>
+            </InfoTooltip>
           </div>
         </div>
       </div>
 
+      {emailBlocked && (
+        <div className="mx-auto max-w-7xl px-6 pt-6">
+          <EmailVerificationBanner />
+        </div>
+      )}
+
       {/* Scan input inline */}
-      {showScanInput && (
+      {showScanInput && !emailBlocked && (
         <div className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-7xl px-6 py-4">
             {/* Se não houver domínios verificados, mostra alerta com link */}

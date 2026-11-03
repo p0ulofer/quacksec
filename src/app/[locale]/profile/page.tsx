@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Navbar } from "@/components/layout/navbar";
+import { EmailVerificationBanner } from "@/components/email/email-verification-banner";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -73,6 +74,7 @@ export default function ProfilePage() {
     setSavingProfile(true);
     setProfileError(null);
     try {
+      const emailChanged = email.trim().toLowerCase() !== user?.email.toLowerCase();
       await api.updateProfile({
         name: name.trim(),
         email: email.trim(),
@@ -82,7 +84,11 @@ export default function ProfilePage() {
       setEmailDraft(null);
       setProfilePassword("");
       await refreshUser();
-      toast.success(t("profile.updateSuccess"));
+      toast.success(
+        emailChanged
+          ? t("emailVerification.changeRequested")
+          : t("profile.updateSuccess")
+      );
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setProfileError(t("profile.invalidPassword"));
@@ -180,6 +186,12 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                {user && !user.emailVerified && (
+                  <div className="mb-4">
+                    <EmailVerificationBanner />
+                  </div>
+                )}
+
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="profile-name">{t("profile.name")}</Label>
@@ -207,6 +219,13 @@ export default function ProfilePage() {
                         required
                       />
                     </div>
+                    {user?.pendingEmail && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        {t("emailVerification.pendingEmailShort", {
+                          email: user.pendingEmail,
+                        })}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
