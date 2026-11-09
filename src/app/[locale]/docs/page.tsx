@@ -105,7 +105,9 @@ export default function DocsPage() {
       category: isEn ? "Remediation & AI" : "Correção e Planos com IA",
       items: [
         { id: "planos-remediacao", title: isEn ? "Remediation Plans" : "Planos de Correção" },
+        { id: "ciclo-vida-planos", title: isEn ? "Workflow & Lifecycle" : "Ciclo de Vida e Status" },
         { id: "ia-educacional", title: isEn ? "Educational AI Insights" : "Inteligência Artificial Educativa" },
+        { id: "exemplos-correcao-ia", title: isEn ? "AI Code Fix Examples" : "Exemplos de Correção por Framework" },
       ],
     },
     {
@@ -950,23 +952,190 @@ export default function DocsPage() {
             <section id="planos-remediacao" className="scroll-mt-24 space-y-4 pt-4 border-t border-border/60">
               <div className="flex items-center gap-2 text-primary text-xs font-mono font-medium uppercase tracking-wider">
                 <Sparkles className="h-4 w-4" />
-                {isEn ? "Remediation & Plans" : "Correção e Planos"}
+                {isEn ? "Remediation & Plans" : "Correção e Planos com IA"}
               </div>
               <h2 className="text-2xl font-serif tracking-tight md:text-3xl">
                 {isEn ? "5. Remediation Plans & Educational AI" : "5. Planos de Correção e Inteligência Artificial"}
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Descobrir vulnerabilidades é apenas a primeira metade do trabalho. O QuackSec foi desenhado para fechar o ciclo através da criação de <strong>Planos de Correção</strong> colaborativos.
+                Descobrir vulnerabilidades é apenas a primeira metade da jornada de segurança. O verdadeiro valor do <strong>QuackSec</strong> está em fechar o ciclo através da criação de <strong>Planos de Correção</strong> colaborativos, guiados por recomendações inteligentes que ensinam sua equipe a programar com segurança defensiva.
               </p>
 
-              <div className="rounded-lg border border-border bg-card p-4 space-y-3 text-xs">
-                <h4 className="font-semibold text-foreground">Como criar e gerenciar um Plano de Correção:</h4>
-                <ol className="list-decimal pl-5 space-y-1.5 text-muted-foreground">
-                  <li>Navegue até a página <strong>Vulnerabilidades</strong> no menu superior.</li>
-                  <li>Selecione as falhas mais críticas que sua equipe irá priorizar no sprint atual.</li>
-                  <li>Clique no botão <strong>Criar Plano de Correção</strong>, defina um título descritivo e uma data de entrega.</li>
-                  <li>Acompanhe o progresso de resolução conforme sua equipe aplica os patches no código ou na infraestrutura.</li>
-                </ol>
+              {/* Como Funciona o Plano de Correção */}
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Activity className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold">Como Criar e Gerenciar um Plano de Correção</h3>
+                    <p className="text-xs text-muted-foreground">Do diagnóstico à resolução definitiva das vulnerabilidades</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 pt-2 text-xs">
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-1.5">
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/20 text-primary font-mono text-[11px]">1</span>
+                      Triagem de Vulnerabilidades
+                    </span>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Na página <strong>Vulnerabilidades</strong>, filtre por severidade (Crítica, Alta) e selecione os achados que demandam ação imediata.
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-1.5">
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/20 text-primary font-mono text-[11px]">2</span>
+                      Agrupamento em Lote
+                    </span>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Clique em <strong>Criar Plano de Correção</strong>, defina um título descritivo (ex: <em>"Sprint 14: Hardening de API"</em>) e uma data de entrega.
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-1.5">
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/20 text-primary font-mono text-[11px]">3</span>
+                      Aplicação dos Patches com IA
+                    </span>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Utilize as correções geradas pela IA para aplicar as alterações recomendadas no código-fonte ou no servidor web.
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-1.5">
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/20 text-primary font-mono text-[11px]">4</span>
+                      Validação via Re-scan
+                    </span>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Execute um novo scan para que a plataforma confirme a resolução e atualize o <strong>Security Score</strong> automaticamente.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mock Visual do Plano de Correção */}
+                <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                          Em Andamento
+                        </Badge>
+                        <span className="text-xs font-semibold text-foreground">Plano: Hardening de Produção & Headers (Sprint 12)</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Prazo de entrega: 15 de Dezembro • Responsável: Equipe Backend</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-xs font-bold text-primary">67% Concluído</span>
+                      <p className="text-[10px] text-muted-foreground">2 de 3 tarefas resolvidas</p>
+                    </div>
+                  </div>
+
+                  {/* Barra de Progresso */}
+                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div className="h-full bg-emerald-500 transition-all rounded-full" style={{ width: "67%" }} />
+                  </div>
+
+                  {/* Lista de itens simulados */}
+                  <div className="space-y-2 pt-1 text-xs">
+                    <div className="flex items-center justify-between rounded border border-border/60 bg-background/80 p-2.5">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">Strict-Transport-Security (HSTS) Header Missing</p>
+                          <span className="text-[10px] text-muted-foreground">config_analyzer • Endpoint: https://meusite.com</span>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                        Resolvida
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded border border-border/60 bg-background/80 p-2.5">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">Permissive CORS Policy with Credentials Allowed</p>
+                          <span className="text-[10px] text-muted-foreground">api_scanner • Endpoint: /api/v1/auth</span>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                        Resolvida
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded border border-border/60 bg-background/80 p-2.5">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">Vulnerable jQuery Version Detected (CVE-2020-11022)</p>
+                          <span className="text-[10px] text-muted-foreground">dependency_analyzer • Atualização para 3.5.0 pendente</span>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10px]">
+                        Pendente
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Ciclo de Vida e Status */}
+            <section id="ciclo-vida-planos" className="scroll-mt-24 space-y-4">
+              <h3 className="text-lg font-semibold tracking-tight">
+                {isEn ? "Task Lifecycle & Risk Management" : "Ciclo de Vida das Tarefas e Gestão de Risco"}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Nem toda vulnerabilidade pode ser corrigida instantaneamente com uma linha de código. Para permitir flexibilidade técnica com governança, cada item de um plano suporta 4 estados formais:
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2 text-xs">
+                <div className="rounded-lg border border-border bg-card p-3 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400">
+                      Pendente (Pending)
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Estado inicial de uma falha adicionada ao plano. Indica que a equipe técnica está ciente do risco e a tarefa está aguardando implementação ou revisão.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-border bg-card p-3 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+                      Resolvida (Resolved)
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    A correção foi aplicada no ambiente. Quando um novo scan valida a ausência da vulnerabilidade, ela é promovida a resolvida e melhora o score da aplicação.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-border bg-card p-3 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-400">
+                      Falso Positivo (False Positive)
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Quando o time de segurança avalia que o apontamento não representa um perigo real devido a controles compensatórios (ex: firewall ou WAF externo).
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-border bg-card p-3 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-purple-500/40 text-purple-600 dark:text-purple-400">
+                      Risco Aceito (Risk Accepted)
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Formalização documentada de que a organização reconhece a fraqueza, mas opta por não alterá-la no momento por razões arquiteturais ou dependência legada.
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -974,37 +1143,178 @@ export default function DocsPage() {
             <section id="ia-educacional" className="scroll-mt-24 space-y-4">
               <h3 className="text-lg font-semibold tracking-tight flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-emerald-500" />
-                {isEn ? "How the Educational AI Works" : "Como a IA do QuackSec Ajuda na Prática"}
+                {isEn ? "How the Educational AI Works" : "Como Funciona a Inteligência Artificial Educativa"}
               </h3>
               <p className="text-sm text-muted-foreground">
-                Nosso motor de IA traduz termos de segurança densos em explicações amigáveis e fornece snippets de código adaptados ao seu contexto (ex: Nginx, Next.js, Express, Django).
+                O QuackSec não utiliza IA para apenas reescrever definições genéricas de CVEs. Nosso assistente atua como um <strong>mentor sênior de segurança</strong> ao lado do desenvolvedor:
               </p>
 
-              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-xs space-y-2 text-emerald-950 dark:text-emerald-200">
-                <span className="font-semibold text-emerald-900 dark:text-emerald-300">
-                  Exemplo de Sugestão de Correção para HSTS Ausente (Next.js):
-                </span>
-                <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 mt-2">
-                  <pre className="overflow-x-auto">
-{`// next.config.ts
-const nextConfig = {
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-        ],
-      },
-    ];
-  },
-};`}
-                  </pre>
+              <div className="grid gap-3 sm:grid-cols-3 text-xs">
+                <div className="rounded-lg border border-border bg-card p-3.5 space-y-1.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded bg-primary/10 text-primary">
+                    <BookOpen className="h-4 w-4" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Diagnóstico Didático</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Explica a mecânica da falha em linguagem direta, sem jargões desnecessários, destacando a causa-raiz no código.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-border bg-card p-3.5 space-y-1.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                    <ShieldAlert className="h-4 w-4" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Simulação de Impacto</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Demonstra como um invasor exploraria o vetor em um cenário real (ex: sequestro de sessão por cookie inseguro).
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-border bg-card p-3.5 space-y-1.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <Code2 className="h-4 w-4" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Auto-Fix Patch</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Gera snippets de código prontos para copiar e colar para o seu framework e servidor específico.
+                  </p>
                 </div>
               </div>
+            </section>
+
+            {/* Exemplos de Correção por Framework */}
+            <section id="exemplos-correcao-ia" className="scroll-mt-24 space-y-4">
+              <h3 className="text-lg font-semibold tracking-tight">
+                {isEn ? "AI Code Fix Examples by Framework" : "Exemplos de Correção por Framework e Servidor"}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Confira como aplicar as mitigações recomendadas nos frameworks mais populares do mercado:
+              </p>
+
+              <Tabs defaultValue="nextjs-headers" className="w-full">
+                <TabsList className="h-9">
+                  <TabsTrigger value="nextjs-headers" className="text-xs">Next.js</TabsTrigger>
+                  <TabsTrigger value="express-headers" className="text-xs">Express / Node.js</TabsTrigger>
+                  <TabsTrigger value="nginx-headers" className="text-xs">Nginx</TabsTrigger>
+                  <TabsTrigger value="fastapi-headers" className="text-xs">FastAPI / Python</TabsTrigger>
+                  <TabsTrigger value="deps-fix" className="text-xs">Dependências (SCA)</TabsTrigger>
+                </TabsList>
+
+                {/* Next.js */}
+                <TabsContent value="nextjs-headers" className="pt-2">
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground">
+                        Configuração de Cabeçalhos de Segurança (next.config.ts)
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => handleCopy(nextjsFixSnippet, "snippet-nextjs")}
+                      >
+                        {copiedKey === "snippet-nextjs" ? <Check className="h-3 w-3 text-emerald-500 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                        Copiar
+                      </Button>
+                    </div>
+                    <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 overflow-x-auto">
+                      <pre><code>{nextjsFixSnippet}</code></pre>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      * Este bloco adiciona HSTS, proteção contra Clickjacking (SAMEORIGIN), MIME sniffing e define a política de Content-Security-Policy recomendada.
+                    </p>
+                  </div>
+                </TabsContent>
+
+                {/* Express */}
+                <TabsContent value="express-headers" className="pt-2">
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground">
+                        Proteção Global de Headers e CORS Restrito (Express + Helmet)
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => handleCopy(expressFixSnippet, "snippet-express")}
+                      >
+                        {copiedKey === "snippet-express" ? <Check className="h-3 w-3 text-emerald-500 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                        Copiar
+                      </Button>
+                    </div>
+                    <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 overflow-x-auto">
+                      <pre><code>{expressFixSnippet}</code></pre>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Nginx */}
+                <TabsContent value="nginx-headers" className="pt-2">
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground">
+                        Hardening do Bloco Server no Nginx (nginx.conf)
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => handleCopy(nginxFixSnippet, "snippet-nginx")}
+                      >
+                        {copiedKey === "snippet-nginx" ? <Check className="h-3 w-3 text-emerald-500 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                        Copiar
+                      </Button>
+                    </div>
+                    <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 overflow-x-auto">
+                      <pre><code>{nginxFixSnippet}</code></pre>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* FastAPI */}
+                <TabsContent value="fastapi-headers" className="pt-2">
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground">
+                        Proteção de Cabeçalhos e CORS em Python (FastAPI)
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => handleCopy(fastApiFixSnippet, "snippet-fastapi")}
+                      >
+                        {copiedKey === "snippet-fastapi" ? <Check className="h-3 w-3 text-emerald-500 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                        Copiar
+                      </Button>
+                    </div>
+                    <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 overflow-x-auto">
+                      <pre><code>{fastApiFixSnippet}</code></pre>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* SCA / Dependências */}
+                <TabsContent value="deps-fix" className="pt-2">
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <span className="text-xs font-semibold text-foreground">
+                      Resolução de Vulnerabilidades em Dependências de Terceiros
+                    </span>
+                    <div className="space-y-2 text-xs text-muted-foreground">
+                      <p>Para corrigir CVEs detectadas no módulo <code>dependency_analyzer</code>:</p>
+                      <div className="rounded bg-neutral-950 p-3 font-mono text-xs text-neutral-200 space-y-2">
+                        <p className="text-neutral-400"># Em projetos Node.js / NPM:</p>
+                        <code>$ npm audit fix</code>
+                        <p className="text-neutral-400 pt-1"># Se a biblioteca exigir upgrade de versão maior:</p>
+                        <code>$ npm install pacote@versao-segura</code>
+                        <p className="text-neutral-400 pt-1"># Em projetos Python / Pip:</p>
+                        <code>$ pip install --upgrade pacote==versao-segura</code>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </section>
 
             {/* 6. FAQ & Melhores Práticas */}
@@ -1153,3 +1463,118 @@ const mockNucleiResult = {
   cweId: "CWE-200",
   status: "open",
 };
+
+const nextjsFixSnippet = `// next.config.ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';",
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;`;
+
+const expressFixSnippet = `// app.js / server.js
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+
+const app = express();
+
+// Aplica automaticamente HSTS, X-Content-Type-Options, Frameguard e CSP
+app.use(helmet());
+
+// CORS restrito: apenas origens autorizadas com credenciais
+app.use(cors({
+  origin: ['https://meuapp.com', 'https://admin.meuapp.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
+
+// Cookies com flags de segurança ativas
+app.get('/login', (req, res) => {
+  res.cookie('session_token', 'token_jwt_aqui', {
+    httpOnly: true,
+    secure: true, // Apenas HTTPS
+    sameSite: 'lax',
+  });
+  res.json({ message: 'Autenticado com sucesso' });
+});`;
+
+const nginxFixSnippet = `# /etc/nginx/sites-available/meusite.conf
+server {
+    listen 443 ssl http2;
+    server_name meusite.com www.meusite.com;
+
+    # SSL / TLS Moderno
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Security Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: https:;" always;
+
+    # Bloqueio de arquivos ocultos e sensíveis (.env, .git, .bak)
+    location ~ /\\.(?!well-known) {
+        deny all;
+        return 404;
+    }
+}`;
+
+const fastApiFixSnippet = `# main.py
+from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+
+app = FastAPI()
+
+# Restrição de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://meuapp.com"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+# Injeção de Security Headers em todas as respostas
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)`;
