@@ -169,226 +169,222 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2">
-            <Reveal>
-              <div className="rounded-lg border border-border bg-card p-6">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <User className="h-5 w-5 text-primary" strokeWidth={1.6} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl">{t("profile.infoTitle")}</h2>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      {t("profile.infoDescription")}
-                    </p>
-                  </div>
-                </div>
-
-                {user && !user.emailVerified && (
-                  <div className="mb-4">
-                    <EmailVerificationBanner />
-                  </div>
-                )}
-
-                <form onSubmit={handleUpdateProfile} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="profile-name">{t("profile.name")}</Label>
-                    <input
-                      id="profile-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setNameDraft(e.target.value)}
-                      className={inputClass}
-                      minLength={2}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="profile-email">{t("profile.email")}</Label>
-                    <div className="relative">
-                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <input
-                        id="profile-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmailDraft(e.target.value)}
-                        className={`${inputClass} pl-9`}
-                        required
-                      />
-                    </div>
-                    {user?.pendingEmail && (
-                      <p className="text-xs text-amber-600 dark:text-amber-400">
-                        {t("emailVerification.pendingEmailShort", {
-                          email: user.pendingEmail,
-                        })}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="profile-confirm-password">
-                      {t("profile.currentPassword")}
-                    </Label>
-                    <div className="relative">
-                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <input
-                        id="profile-confirm-password"
-                        type="password"
-                        value={profilePassword}
-                        onChange={(e) => {
-                          setProfilePassword(e.target.value);
-                          setProfileError(null);
-                        }}
-                        className={`${inputClass} pl-9`}
-                        autoComplete="current-password"
-                        required
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {t("profile.passwordHint")}
-                    </p>
-                    {profileError && (
-                      <p className="text-sm text-red-500">{profileError}</p>
-                    )}
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      size="sm"
-                      className="gap-2"
-                      disabled={
-                        savingProfile ||
-                        !name.trim() ||
-                        !email.trim() ||
-                        !profilePassword ||
-                        (name.trim() === user?.name && email.trim() === user?.email)
-                      }
-                    >
-                      {savingProfile ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Save className="h-4 w-4" />
-                      )}
-                      {t("profile.saveChanges")}
-                    </Button>
-                  </div>
-                </form>
+      <div className="mx-auto max-w-4xl px-6 py-8 space-y-6">
+        <Reveal>
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" strokeWidth={1.6} />
               </div>
-            </Reveal>
-
-            <Reveal delay={0.1}>
-              <div className="rounded-lg border border-border bg-card p-6">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Lock className="h-5 w-5 text-primary" strokeWidth={1.6} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl">{t("profile.passwordTitle")}</h2>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      {t("profile.passwordDescription")}
-                    </p>
-                  </div>
-                </div>
-
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="current-password">
-                      {t("profile.currentPassword")}
-                    </Label>
-                    <input
-                      id="current-password"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className={inputClass}
-                      autoComplete="current-password"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="new-password">{t("profile.newPassword")}</Label>
-                      <input
-                        id="new-password"
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className={inputClass}
-                        autoComplete="new-password"
-                        minLength={6}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="confirm-password">
-                        {t("profile.confirmPassword")}
-                      </Label>
-                      <input
-                        id="confirm-password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={inputClass}
-                        autoComplete="new-password"
-                        minLength={6}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      size="sm"
-                      className="gap-2"
-                      disabled={
-                        savingPassword ||
-                        !currentPassword ||
-                        !newPassword ||
-                        !confirmPassword
-                      }
-                    >
-                      {savingPassword && (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      )}
-                      {t("profile.passwordTitle")}
-                    </Button>
-                  </div>
-                </form>
+              <div>
+                <h2 className="text-xl">{t("profile.infoTitle")}</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {t("profile.infoDescription")}
+                </p>
               </div>
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.15}>
-            <div className="rounded-lg border border-red-200 bg-red-50/50 p-6 dark:border-red-900 dark:bg-red-950/20">
-              <h2 className="flex items-center gap-2 text-lg font-medium text-red-700 dark:text-red-400">
-                <Trash2 className="h-5 w-5" />
-                {t("profile.dangerTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
-                {t("profile.dangerDescription")}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-4 gap-2 border-red-300 text-red-600 hover:bg-red-100 dark:border-red-800 dark:text-red-400"
-                onClick={() => {
-                  setDeletePassword("");
-                  setDeleteError(null);
-                  setShowDeleteDialog(true);
-                }}
-              >
-                <AlertTriangle className="h-4 w-4" />
-                {t("profile.deleteButton")}
-              </Button>
             </div>
-          </Reveal>
-        </div>
+
+            {user && !user.emailVerified && (
+              <div className="mb-4">
+                <EmailVerificationBanner />
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="profile-name">{t("profile.name")}</Label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  className={inputClass}
+                  minLength={2}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="profile-email">{t("profile.email")}</Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="profile-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmailDraft(e.target.value)}
+                    className={`${inputClass} pl-9`}
+                    required
+                  />
+                </div>
+                {user?.pendingEmail && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t("emailVerification.pendingEmailShort", {
+                      email: user.pendingEmail,
+                    })}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="profile-confirm-password">
+                  {t("profile.currentPassword")}
+                </Label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="profile-confirm-password"
+                    type="password"
+                    value={profilePassword}
+                    onChange={(e) => {
+                      setProfilePassword(e.target.value);
+                      setProfileError(null);
+                    }}
+                    className={`${inputClass} pl-9`}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("profile.passwordHint")}
+                </p>
+                {profileError && (
+                  <p className="text-sm text-red-500">{profileError}</p>
+                )}
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="gap-2"
+                  disabled={
+                    savingProfile ||
+                    !name.trim() ||
+                    !email.trim() ||
+                    !profilePassword ||
+                    (name.trim() === user?.name && email.trim() === user?.email)
+                  }
+                >
+                  {savingProfile ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {t("profile.saveChanges")}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Lock className="h-5 w-5 text-primary" strokeWidth={1.6} />
+              </div>
+              <div>
+                <h2 className="text-xl">{t("profile.passwordTitle")}</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {t("profile.passwordDescription")}
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="current-password">
+                  {t("profile.currentPassword")}
+                </Label>
+                <input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={inputClass}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-password">{t("profile.newPassword")}</Label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className={inputClass}
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirm-password">
+                    {t("profile.confirmPassword")}
+                  </Label>
+                  <input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={inputClass}
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="gap-2"
+                  disabled={
+                    savingPassword ||
+                    !currentPassword ||
+                    !newPassword ||
+                    !confirmPassword
+                  }
+                >
+                  {savingPassword && (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  )}
+                  {t("profile.passwordTitle")}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.15}>
+          <div className="rounded-lg border border-red-200 bg-red-50/50 p-6 dark:border-red-900 dark:bg-red-950/20">
+            <h2 className="flex items-center gap-2 text-lg font-medium text-red-700 dark:text-red-400">
+              <Trash2 className="h-5 w-5" />
+              {t("profile.dangerTitle")}
+            </h2>
+            <p className="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
+              {t("profile.dangerDescription")}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4 gap-2 border-red-300 text-red-600 hover:bg-red-100 dark:border-red-800 dark:text-red-400"
+              onClick={() => {
+                setDeletePassword("");
+                setDeleteError(null);
+                setShowDeleteDialog(true);
+              }}
+            >
+              <AlertTriangle className="h-4 w-4" />
+              {t("profile.deleteButton")}
+            </Button>
+          </div>
+        </Reveal>
       </div>
 
       <Dialog

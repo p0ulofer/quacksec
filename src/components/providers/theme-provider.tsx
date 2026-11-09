@@ -53,6 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = getStoredTheme();
     const resolved = stored === "system" ? getSystemTheme() : stored;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hidratação do tema a partir do localStorage.
     setThemeState(stored);
     setResolved(resolved);
     applyTheme(resolved);

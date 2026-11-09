@@ -17,7 +17,8 @@
     "register": "Registrar",
     "logout": "Sair",
     "profile": "Perfil",
-    "domains": "Domínios"
+    "domains": "Domínios",
+    "docs": "Documentação"
   },
   "profile": {
     "title": "Perfil",

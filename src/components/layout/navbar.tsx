@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { UserProfileDialog } from "@/components/layout/user-profile-dialog";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,7 +25,7 @@ export function Navbar() {
     { href: `/${locale}/domains`, label: t("nav.domains") },
     { href: `/${locale}/vulnerabilidades`, label: t("nav.vulnerabilities") },
     { href: `/${locale}/vulnerabilidades/planos`, label: t("nav.remediationPlans") },
-    { href: `/${locale}/profile`, label: t("nav.profile") },
+    { href: `/${locale}/docs`, label: t("nav.docs") },
   ];
 
   return (
@@ -48,7 +47,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {isAuthenticated &&
+          {isAuthenticated ? (
             navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -57,7 +56,15 @@ export function Navbar() {
               >
                 {link.label}
               </Link>
-            ))}
+            ))
+          ) : (
+            <Link
+              href={`/${locale}/docs`}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {t("nav.docs")}
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -65,16 +72,20 @@ export function Navbar() {
           <ThemeToggle />
           {isAuthenticated ? (
             <>
-              <UserProfileDialog>
-                <button className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:inline">
-                  {user?.name}
-                </button>
-              </UserProfileDialog>
+              <Link
+                href={`/${locale}/profile`}
+                className="hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
+                title={t("nav.profile")}
+              >
+                <User className="h-4 w-4" />
+                <span>{user?.name}</span>
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => { logout(); window.location.href = `/${locale}`; }}
                 className="hidden md:inline-flex"
+                title={t("nav.logout")}
               >
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -110,7 +121,7 @@ export function Navbar() {
         )}
       >
         <nav className="flex flex-col gap-1 px-6 py-4">
-          {isAuthenticated &&
+          {isAuthenticated ? (
             navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -120,20 +131,26 @@ export function Navbar() {
               >
                 {link.label}
               </Link>
-            ))}
+            ))
+          ) : (
+            <Link
+              href={`/${locale}/docs`}
+              onClick={() => setMobileOpen(false)}
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              {t("nav.docs")}
+            </Link>
+          )}
           {isAuthenticated ? (
             <>
-              <UserProfileDialog>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="mt-2 justify-start"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Perfil
-                </Button>
-              </UserProfileDialog>
+              <Link
+                href={`/${locale}/profile`}
+                onClick={() => setMobileOpen(false)}
+                className="mt-2 flex items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <User className="h-4 w-4 mr-2" />
+                {user?.name || t("nav.profile")}
+              </Link>
               <Button
                 size="sm"
                 variant="ghost"

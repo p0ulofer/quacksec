@@ -17,7 +17,8 @@
     "register": "Register",
     "logout": "Logout",
     "profile": "Profile",
-    "domains": "Domains"
+    "domains": "Domains",
+    "docs": "Documentation"
   },
   "profile": {
     "title": "Profile",
