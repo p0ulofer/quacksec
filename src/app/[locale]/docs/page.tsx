@@ -91,7 +91,6 @@ export default function DocsPage() {
         { id: "modulo-api", title: isEn ? "API Scanner" : "API Scanner" },
         { id: "modulo-config", title: isEn ? "Configuration Analyzer" : "Analisador de Configurações" },
         { id: "modulo-dependencias", title: isEn ? "Dependency & SCA Analyzer" : "Análise de Dependências (SCA)" },
-        { id: "modulo-nuclei", title: isEn ? "Nuclei Security Scanner" : "Nuclei Security Scanner" },
       ],
     },
     {
@@ -324,7 +323,7 @@ export default function DocsPage() {
                   {
                     step: "03",
                     title: "Execução do Scan Personalizado",
-                    desc: "Inicie uma varredura selecionando os motores de análise desejados (API Scanner, Headers de Configuração, Dependências ou Nuclei).",
+                    desc: "Inicie uma varredura selecionando os motores de análise desejados (API Scanner, Headers de Configuração e Análise de Dependências).",
                   },
                   {
                     step: "04",
@@ -598,10 +597,10 @@ export default function DocsPage() {
                 {isEn ? "Scan Modules" : "Módulos de Varredura"}
               </div>
               <h2 className="text-2xl font-serif tracking-tight md:text-3xl">
-                {isEn ? "3. The 4 Security Scan Engines" : "3. Os 4 Motores de Análise de Segurança"}
+                {isEn ? "3. The 3 Security Scan Engines" : "3. Os 3 Motores de Análise de Segurança"}
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                O QuackSec integra 4 serviços complementares de auditoria que você pode selecionar de forma individual ou combinada em uma única execução:
+                O QuackSec integra 3 serviços complementares de auditoria que você pode selecionar de forma individual ou combinada em uma única execução:
               </p>
             </section>
 
@@ -698,37 +697,6 @@ export default function DocsPage() {
                     <li>Impressões digitais (fingerprints) de bibliotecas frontend (React, jQuery, Lodash, Vue, Angular, Bootstrap).</li>
                     <li>Mapeamento das versões em uso com vulnerabilidades conhecidas cadastradas no National Vulnerability Database (NVD).</li>
                     <li>Recomendações da versão mínima segura e atualizada para mitigar cada falha.</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            {/* Módulo Nuclei */}
-            <section id="modulo-nuclei" className="scroll-mt-24 space-y-4">
-              <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
-                      <Flame className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">Nuclei Security Scanner</h3>
-                      <p className="text-xs text-muted-foreground font-mono">id do serviço: nuclei</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="border-rose-500/40 text-rose-600 dark:text-rose-400">Template-based Scanner</Badge>
-                </div>
-
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Aplica modelos e templates criados e mantidos pela comunidade global de cibersegurança para identificar CVEs recentes, painéis administrativos expostos e configurações arriscadas.
-                </p>
-
-                <div className="space-y-2 text-xs">
-                  <span className="font-semibold text-foreground">O que este módulo audita:</span>
-                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                    <li>Painéis de login e administração expostos à internet pública sem restrição de IP.</li>
-                    <li>Assinaturas de falhas conhecidas em servidores web (Apache, Nginx, IIS) e middlewares populares.</li>
-                    <li>Exposições acidentais de portas de depuração e endpoints de telemetria.</li>
                   </ul>
                 </div>
               </div>
@@ -923,28 +891,6 @@ export default function DocsPage() {
                 </div>
                 <div className="p-4 bg-neutral-950 font-mono text-xs text-neutral-200 overflow-x-auto">
                   <pre><code>{JSON.stringify(mockDependencyResult, null, 2)}</code></pre>
-                </div>
-              </div>
-
-              {/* Exemplo 4: Nuclei Scanner */}
-              <div className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-2.5">
-                  <div className="flex items-center gap-2">
-                    <Flame className="h-4 w-4 text-rose-500" />
-                    <span className="text-xs font-semibold">Exemplo 4: Nuclei Scanner (Endpoint de Depuração Exposto)</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 px-2 text-[10px]"
-                    onClick={() => handleCopy(JSON.stringify(mockNucleiResult, null, 2), "json-nuclei")}
-                  >
-                    {copiedKey === "json-nuclei" ? <Check className="h-3 w-3 text-emerald-500 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                    Copiar JSON
-                  </Button>
-                </div>
-                <div className="p-4 bg-neutral-950 font-mono text-xs text-neutral-200 overflow-x-auto">
-                  <pre><code>{JSON.stringify(mockNucleiResult, null, 2)}</code></pre>
                 </div>
               </div>
             </section>
@@ -1447,21 +1393,6 @@ const mockDependencyResult = {
   recommendation: "Atualize o pacote jQuery para a versão 3.5.0 ou superior para eliminar a CVE.",
   cveIds: ["CVE-2020-11022", "CVE-2020-11023"],
   cweId: "CWE-79",
-  status: "open",
-};
-
-const mockNucleiResult = {
-  id: "vuln-nuc-04",
-  title: "Spring Boot Actuator Endpoints Publicly Exposed",
-  description: "Endpoints administrativos e de telemetria foram encontrados acessíveis publicamente sem autenticação.",
-  severity: "high",
-  confidence: "high",
-  module: "nuclei",
-  affectedEndpoint: "https://exemplo.com/actuator/env",
-  evidence: "GET /actuator/env retornou 200 OK contendo variáveis de ambiente do sistema.",
-  recommendation: "Desabilite os endpoints de actuator na internet pública através do application.properties.",
-  cveIds: [],
-  cweId: "CWE-200",
   status: "open",
 };
 

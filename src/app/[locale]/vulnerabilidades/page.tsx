@@ -35,7 +35,7 @@ import { api, Vulnerability, ScannedUrl } from "@/lib/api";
 
 type Severity = "critical" | "high" | "medium" | "low" | "info";
 type VulnStatus = "open" | "confirmed" | "false_positive" | "fixed";
-type ScanModuleKey = "api_scanner" | "dependency_analyzer" | "config_analyzer" | "nuclei";
+type ScanModuleKey = "api_scanner" | "dependency_analyzer" | "config_analyzer";
 
 const severityOrder: Record<Severity, number> = {
   critical: 0,
@@ -64,7 +64,6 @@ const scanModules: { key: ScanModuleKey; labelKey: string }[] = [
   { key: "api_scanner", labelKey: "scanModule.api_scanner" },
   { key: "dependency_analyzer", labelKey: "scanModule.dependency_analyzer" },
   { key: "config_analyzer", labelKey: "scanModule.config_analyzer" },
-  { key: "nuclei", labelKey: "scanModule.nuclei" },
 ];
 
 export default function VulnerabilidadesPage() {

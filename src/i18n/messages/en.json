@@ -251,7 +251,6 @@
     "rate-limit": "Rate limit & HTTP methods",
     "ports": "Ports & services",
     "dependencies": "Dependencies",
-    "nuclei": "Nuclei",
     "other": "Other"
   },
   "category": {
@@ -275,8 +274,7 @@
   "scanModule": {
     "api_scanner": "API Scanner",
     "dependency_analyzer": "Dependency Analysis",
-    "config_analyzer": "Config Analysis",
-    "nuclei": "Nuclei"
+    "config_analyzer": "Config Analysis"
   },
   "remediationPlanStatus": {
     "open": "Open",
