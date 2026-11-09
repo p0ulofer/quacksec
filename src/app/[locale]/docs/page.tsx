@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
@@ -24,6 +24,7 @@ import {
   Lock,
   Code2,
   ArrowRight,
+  ArrowUp,
   Sparkles,
   HelpCircle,
   Hash,
@@ -55,6 +56,21 @@ export default function DocsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleCopy = async (text: string, key: string) => {
     try {
@@ -198,6 +214,21 @@ export default function DocsPage() {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
+
+          {/* Back to top button */}
+          <button
+            type="button"
+            onClick={scrollToTop}
+            aria-label={isEn ? "Back to top" : "Voltar ao topo"}
+            title={isEn ? "Back to top" : "Voltar ao topo"}
+            className={`fixed bottom-20 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-card/95 text-foreground shadow-lg backdrop-blur transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 md:bottom-8 md:right-8 ${
+              showBackToTop
+                ? "opacity-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 translate-y-4 pointer-events-none"
+            }`}
+          >
+            <ArrowUp className="h-5 w-5" />
+          </button>
 
           {/* Left Sidebar (Desktop & Mobile Drawer) */}
           <aside
