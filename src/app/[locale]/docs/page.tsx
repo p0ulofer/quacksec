@@ -32,6 +32,7 @@ import {
   X,
   ExternalLink,
   ShieldAlert,
+  ShieldCheck,
   Flame,
   Info,
   Zap,
@@ -288,8 +289,8 @@ export default function DocsPage() {
                 </div>
 
                 <div className="rounded-lg border border-border bg-card p-4 space-y-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    <Globe className="h-4 w-4" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
                   <h3 className="text-sm font-semibold">Segurança Ética</h3>
                   <p className="text-xs text-muted-foreground">
