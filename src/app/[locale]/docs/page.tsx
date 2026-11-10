@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
@@ -45,39 +45,72 @@ export default function DocsPage() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  const isClickScrollingRef = useRef(false);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateActiveSection = () => {
       setShowBackToTop(window.scrollY > 300);
+
+      // Do not recalculate if user recently clicked a link (avoid intermediate flicker during smooth scroll)
+      if (isClickScrollingRef.current) {
+        ticking = false;
+        return;
+      }
+
+      const sections = Array.from(
+        document.querySelectorAll<HTMLElement>("main section[id]")
+      );
+      if (sections.length === 0) {
+        ticking = false;
+        return;
+      }
+
+      // Check if user has scrolled near bottom of page
+      const isAtBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 80;
+
+      if (isAtBottom) {
+        const lastId = sections[sections.length - 1].id;
+        setActiveSection((prev) => (prev !== lastId ? lastId : prev));
+        ticking = false;
+        return;
+      }
+
+      // Target threshold line from top of viewport (below sticky navbar)
+      const targetOffset = 140;
+
+      let currentActiveId = sections[0].id;
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= targetOffset) {
+          currentActiveId = section.id;
+        } else {
+          break;
+        }
+      }
+
+      setActiveSection((prev) => (prev !== currentActiveId ? currentActiveId : prev));
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateActiveSection);
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    updateActiveSection();
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntries = entries.filter((e) => e.isIntersecting);
-        if (visibleEntries.length > 0) {
-          visibleEntries.sort(
-            (a, b) =>
-              Math.abs(a.boundingClientRect.top - 100) -
-              Math.abs(b.boundingClientRect.top - 100)
-          );
-          setActiveSection(visibleEntries[0].target.id);
-        }
-      },
-      {
-        rootMargin: "-80px 0px -60% 0px",
-        threshold: [0, 0.2, 0.5],
-      }
-    );
-
-    const sectionElements = document.querySelectorAll("main section[id]");
-    sectionElements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -163,6 +196,14 @@ export default function DocsPage() {
   const scrollTo = (id: string) => {
     setActiveSection(id);
     setMobileMenuOpen(false);
+
+    // Block scroll listener from recalculating during smooth scroll
+    isClickScrollingRef.current = true;
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      isClickScrollingRef.current = false;
+    }, 1000);
+
     const element = document.getElementById(id);
     if (element) {
       const yOffset = -90;
