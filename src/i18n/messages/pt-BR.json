@@ -12,13 +12,17 @@
   "nav": {
     "dashboard": "Painel",
     "vulnerabilities": "Vulnerabilidades",
-    "remediationPlans": "Planos de Correção",
+    "remediationPlans": "Correções",
     "login": "Entrar",
     "register": "Registrar",
-    "logout": "Sair",
+    "logout": "Sair da conta",
     "profile": "Perfil",
     "domains": "Domínios",
-    "docs": "Documentação"
+    "docs": "Documentação",
+    "account": "Minha conta",
+    "settings": "Configurações",
+    "accountSub": "Conta do QuackSec",
+    "toggleTheme": "Alternar tema"
   },
   "profile": {
     "title": "Perfil",

@@ -1,23 +1,40 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 
+const emptySubscribe = () => () => {};
+
 export function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="rounded-full"
+      className="h-9 w-9 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label="Alternar tema"
+      aria-label={
+        isDark
+          ? "Tema escuro (clique para alternar para claro)"
+          : "Tema claro (clique para alternar para escuro)"
+      }
+      title={isDark ? "Tema escuro" : "Tema claro"}
     >
-      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all duration-500 dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100" />
+      {isDark ? (
+        <Moon className="h-4 w-4 transition-transform hover:scale-110" />
+      ) : (
+        <Sun className="h-4 w-4 transition-transform hover:scale-110" />
+      )}
     </Button>
   );
 }

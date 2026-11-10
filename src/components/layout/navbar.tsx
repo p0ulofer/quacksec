@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -11,14 +12,17 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { UserNavDropdown } from "@/components/layout/user-nav-dropdown";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const t = useTranslations();
   const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks = [
     { href: `/${locale}/dashboard`, label: t("nav.dashboard") },
@@ -28,82 +32,120 @@ export function Navbar() {
     { href: `/${locale}/docs`, label: t("nav.docs") },
   ];
 
+  const isLinkActive = (href: string) => {
+    if (href.endsWith("/vulnerabilidades/planos")) {
+      return pathname.startsWith(href);
+    }
+    if (href.endsWith("/vulnerabilidades")) {
+      return pathname.startsWith(href) && !pathname.includes("/vulnerabilidades/planos");
+    }
+    return pathname === href || (href !== `/${locale}` && pathname.startsWith(href));
+  };
+
+  const handleMobileLogout = () => {
+    logout();
+    setMobileOpen(false);
+    router.push(`/${locale}`);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link
-          href={`/${locale}`}
-          className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
-        >
-          <Image
-            src={isDark ? "/logo-white.png" : "/logo3.png"}
-            alt="QuackSec"
-            width={32}
-            height={32}
-            className="h-8 w-auto"
-            priority
-          />
-          <span className="font-serif text-xl tracking-tight">QuackSec</span>
-        </Link>
+      <div className="mx-auto grid h-16 max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
+        {/* Left Side: Brand & Logo */}
+        <div className="flex items-center justify-start">
+          <Link
+            href={`/${locale}`}
+            className="flex items-center gap-2.5 transition-opacity hover:opacity-85"
+            aria-label="QuackSec Home"
+          >
+            <Image
+              src={isDark ? "/logo-white.png" : "/logo3.png"}
+              alt="QuackSec"
+              width={30}
+              height={30}
+              className="h-7 w-auto sm:h-8"
+              priority
+            />
+            <span className="font-serif text-lg tracking-tight sm:text-xl">
+              QuackSec
+            </span>
+          </Link>
+        </div>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        {/* Center: Horizontally Centered Navigation Links */}
+        <nav className="hidden items-center justify-center gap-4 md:flex lg:gap-7">
           {isAuthenticated ? (
-            navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))
+            navLinks.map((link) => {
+              const active = isLinkActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "relative flex items-center py-2 text-xs font-medium transition-colors hover:text-foreground lg:text-sm",
+                    active
+                      ? "font-semibold text-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {link.label}
+                  {active && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })
           ) : (
             <Link
               href={`/${locale}/docs`}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className={cn(
+                "relative flex items-center py-2 text-xs font-medium transition-colors hover:text-foreground lg:text-sm",
+                pathname.startsWith(`/${locale}/docs`)
+                  ? "font-semibold text-foreground"
+                  : "text-muted-foreground"
+              )}
             >
               {t("nav.docs")}
+              {pathname.startsWith(`/${locale}/docs`) && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-primary" />
+              )}
             </Link>
           )}
         </nav>
 
-        <div className="flex items-center gap-2">
+        {/* Right Side: Grouped Secondary Controls */}
+        <div className="flex items-center justify-end gap-1.5 sm:gap-2">
+          {/* Compact Language Selector */}
           <LanguageSwitcher />
+
+          {/* Theme Toggle (Current Theme Icon only) */}
           <ThemeToggle />
+
+          {/* User Profile or Auth Buttons */}
           {isAuthenticated ? (
-            <>
-              <Link
-                href={`/${locale}/profile`}
-                className="hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
-                title={t("nav.profile")}
-              >
-                <User className="h-4 w-4" />
-                <span>{user?.name}</span>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => { logout(); window.location.href = `/${locale}`; }}
-                className="hidden md:inline-flex"
-                title={t("nav.logout")}
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </>
+            <UserNavDropdown />
           ) : (
-            <>
-              <Link href={`/${locale}/login`} className="hidden md:inline-flex">
-                <Button size="sm" variant="ghost">{t("nav.login")}</Button>
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <Link href={`/${locale}/login`}>
+                <Button size="sm" variant="ghost" className="h-9 px-3 text-xs">
+                  {t("nav.login")}
+                </Button>
               </Link>
-              <Link href={`/${locale}/register`} className="hidden md:inline-flex">
-                <Button size="sm">{t("nav.register")}</Button>
+              <Link href={`/${locale}/register`}>
+                <Button size="sm" className="h-9 px-3.5 text-xs">
+                  {t("nav.register")}
+                </Button>
               </Link>
-            </>
+            </div>
           )}
+
+          {/* Mobile Hamburger Menu Button */}
           <button
-            className="rounded-lg p-2 transition-colors hover:bg-accent md:hidden"
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
+            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? (
               <X className="h-5 w-5" />
@@ -114,65 +156,87 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Dropdown Navigation Drawer */}
       <div
         className={cn(
-          "overflow-hidden border-t border-border/60 bg-background transition-all duration-300 md:hidden",
-          mobileOpen ? "max-h-80" : "max-h-0"
+          "overflow-hidden border-t border-border/60 bg-background/95 backdrop-blur-xl transition-all duration-300 ease-in-out md:hidden",
+          mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 border-t-0"
         )}
       >
-        <nav className="flex flex-col gap-1 px-6 py-4">
+        <nav className="flex flex-col gap-1 px-4 py-3 sm:px-6">
           {isAuthenticated ? (
-            navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))
+            navLinks.map((link) => {
+              const active = isLinkActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-primary/10 font-semibold text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  <span>{link.label}</span>
+                  {active && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })
           ) : (
             <Link
               href={`/${locale}/docs`}
               onClick={() => setMobileOpen(false)}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className={cn(
+                "flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                pathname.startsWith(`/${locale}/docs`)
+                  ? "bg-primary/10 font-semibold text-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
             >
-              {t("nav.docs")}
+              <span>{t("nav.docs")}</span>
+              {pathname.startsWith(`/${locale}/docs`) && (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              )}
             </Link>
           )}
+
+          {/* Mobile Profile Actions when logged in */}
           {isAuthenticated ? (
-            <>
+            <div className="mt-2 border-t border-border/60 pt-2">
               <Link
                 href={`/${locale}/profile`}
                 onClick={() => setMobileOpen(false)}
-                className="mt-2 flex items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
               >
-                <User className="h-4 w-4 mr-2" />
-                {user?.name || t("nav.profile")}
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>{user?.name || t("nav.profile")}</span>
               </Link>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="mt-2 justify-start"
-                onClick={() => {
-                  logout();
-                  window.location.href = `/${locale}`;
-                }}
+              <button
+                type="button"
+                onClick={handleMobileLogout}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                {t("nav.logout")}
-              </Button>
-            </>
+                <LogOut className="h-4 w-4 text-destructive" />
+                <span>{t("nav.logout")}</span>
+              </button>
+            </div>
           ) : (
-            <>
+            <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3">
               <Link href={`/${locale}/login`} onClick={() => setMobileOpen(false)}>
-                <Button size="sm" variant="ghost" className="mt-2 w-full">{t("nav.login")}</Button>
+                <Button size="sm" variant="ghost" className="w-full justify-center">
+                  {t("nav.login")}
+                </Button>
               </Link>
               <Link href={`/${locale}/register`} onClick={() => setMobileOpen(false)}>
-                <Button size="sm" className="mt-1 w-full">{t("nav.register")}</Button>
+                <Button size="sm" className="w-full justify-center">
+                  {t("nav.register")}
+                </Button>
               </Link>
-            </>
+            </div>
           )}
         </nav>
       </div>

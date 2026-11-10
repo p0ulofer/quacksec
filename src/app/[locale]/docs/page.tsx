@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Badge } from "@/components/ui/badge";
@@ -17,39 +17,26 @@ import {
   Globe,
   Server,
   FileText,
-  Terminal,
   AlertTriangle,
   Cpu,
   Layers,
   Lock,
   Code2,
-  ArrowRight,
   ArrowUp,
   Sparkles,
   HelpCircle,
-  Hash,
   ChevronRight,
   Menu,
   X,
-  ExternalLink,
   ShieldAlert,
   ShieldCheck,
-  Flame,
   Info,
-  Zap,
   Activity,
   CheckCircle,
 } from "lucide-react";
 
-interface DocSection {
-  id: string;
-  title: string;
-  category: string;
-}
-
 export default function DocsPage() {
   const locale = useLocale();
-  const t = useTranslations();
   const isEn = locale === "en";
 
   const [activeSection, setActiveSection] = useState("visao-geral");
@@ -66,6 +53,31 @@ export default function DocsPage() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries.filter((e) => e.isIntersecting);
+        if (visibleEntries.length > 0) {
+          visibleEntries.sort(
+            (a, b) =>
+              Math.abs(a.boundingClientRect.top - 100) -
+              Math.abs(b.boundingClientRect.top - 100)
+          );
+          setActiveSection(visibleEntries[0].target.id);
+        }
+      },
+      {
+        rootMargin: "-80px 0px -60% 0px",
+        threshold: [0, 0.2, 0.5],
+      }
+    );
+
+    const sectionElements = document.querySelectorAll("main section[id]");
+    sectionElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToTop = () => {
@@ -230,13 +242,21 @@ export default function DocsPage() {
             <ArrowUp className="h-5 w-5" />
           </button>
 
+          {/* Mobile backdrop */}
+          {mobileMenuOpen && (
+            <div
+              className="fixed inset-0 z-30 bg-black/60 backdrop-blur-xs md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+          )}
+
           {/* Left Sidebar (Desktop & Mobile Drawer) */}
           <aside
-            className={`fixed inset-y-0 left-0 z-30 w-72 transform border-r border-border/70 bg-background/95 p-6 backdrop-blur transition-transform md:static md:z-0 md:h-[calc(100vh-8rem)] md:w-64 md:transform-none md:border-r-0 md:bg-transparent md:p-0 md:backdrop-blur-none ${
+            className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-border/70 bg-background/95 p-6 backdrop-blur transition-transform md:sticky md:top-20 md:self-start md:h-[calc(100vh-6rem)] md:w-64 md:shrink-0 md:transform-none md:border-r-0 md:bg-transparent md:p-0 md:backdrop-blur-none ${
               mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             }`}
           >
-            <div className="sticky top-24 flex h-full flex-col space-y-4">
+            <div className="flex h-full flex-col space-y-4">
               {/* Search filter */}
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -250,7 +270,10 @@ export default function DocsPage() {
               </div>
 
               {/* Navigation tree */}
-              <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-sm">
+              <div
+                data-lenis-prevent="true"
+                className="flex-1 overflow-y-auto overscroll-contain pr-2 space-y-6 text-sm"
+              >
                 {filteredCategories.map((group, idx) => (
                   <div key={idx} className="space-y-1.5">
                     <h3 className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
@@ -294,7 +317,7 @@ export default function DocsPage() {
                 {isEn ? "1. Overview & Philosophy" : "1. Visão Geral e Filosofia"}
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                O <strong>QuackSec</strong> é uma solução completa de <strong>Application Security Posture Management (ASPM)</strong> desenvolvida para democratizar e desmistificar a segurança de aplicações web e APIs. Ao contrário de ferramentas que apenas despejam listas intermináveis de alertas alarmantes, o QuackSec opera sob o lema <em>"Segurança que ensina"</em>.
+                O <strong>QuackSec</strong> é uma solução completa de <strong>Application Security Posture Management (ASPM)</strong> desenvolvida para democratizar e desmistificar a segurança de aplicações web e APIs. Ao contrário de ferramentas que apenas despejam listas intermináveis de alertas alarmantes, o QuackSec opera sob o lema <em>&ldquo;Segurança que ensina&rdquo;</em>.
               </p>
 
               <div className="grid gap-4 sm:grid-cols-3 pt-2">
@@ -496,7 +519,7 @@ export default function DocsPage() {
                     </div>
                     <pre className="pt-2 overflow-x-auto">
                       <code>$ dig TXT _quacksec-challenge.seudominio.com +short<br />
-<span className="text-emerald-400">"quacksec-verify=f8a12e34-5678-90ab-cdef-1234567890ab"</span></code>
+<span className="text-emerald-400">&quot;quacksec-verify=f8a12e34-5678-90ab-cdef-1234567890ab&quot;</span></code>
                     </pre>
                   </div>
                 </div>
@@ -968,7 +991,7 @@ export default function DocsPage() {
                       Agrupamento em Lote
                     </span>
                     <p className="text-muted-foreground leading-relaxed">
-                      Clique em <strong>Criar Plano de Correção</strong>, defina um título descritivo (ex: <em>"Sprint 14: Hardening de API"</em>) e uma data de entrega.
+                      Clique em <strong>Criar Plano de Correção</strong>, defina um título descritivo (ex: <em>&ldquo;Sprint 14: Hardening de API&rdquo;</em>) e uma data de entrega.
                     </p>
                   </div>
 

@@ -12,13 +12,17 @@
   "nav": {
     "dashboard": "Dashboard",
     "vulnerabilities": "Vulnerabilities",
-    "remediationPlans": "Remediation Plans",
+    "remediationPlans": "Remediations",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout",
+    "logout": "Sign out",
     "profile": "Profile",
     "domains": "Domains",
-    "docs": "Documentation"
+    "docs": "Documentation",
+    "account": "My account",
+    "settings": "Settings",
+    "accountSub": "QuackSec Account",
+    "toggleTheme": "Toggle theme"
   },
   "profile": {
     "title": "Profile",
