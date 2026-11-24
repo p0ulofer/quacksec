@@ -342,7 +342,7 @@ export default function DashboardPage() {
         <div className="border-b border-border/60 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-7xl px-6 py-4">
             {/* Se não houver domínios verificados, mostra alerta com link */}
-            {domains.filter((d) => d.status === "verified").length === 0 ? (
+            {false ? (
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-200">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
